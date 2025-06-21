@@ -105,10 +105,10 @@ describe('setupServer', () => {
     // Assert server was created with the right parameters
     expect(ServerMock).toHaveBeenCalledWith(
       {
-        name: 'memento-mcp',
+        name: 'neural-nexus-mcp',
         version: '1.0.0',
-        description: 'Memento MCP: Your persistent knowledge graph memory system',
-        publisher: 'gannonh',
+        description: 'Neural Nexus MCP: Your persistent knowledge graph memory system',
+        publisher: 'adarsh6938',
       },
       {
         capabilities: {

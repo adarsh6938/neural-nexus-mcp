@@ -92,14 +92,14 @@ temp/
 *.swp
 coverage/
 
-# Memory MCP specific
+# Neural Nexus MCP specific
 .DS_Store
 .specstory/
 .cursor/
 neo4j-data/
 neo4j-import/
 neo4j-logs/
-memento-mcp.code-workspace
+neural-nexus-mcp.code-workspace
 copilot-instructions.md
 .github/copilot-instructions.md
 .specstory/

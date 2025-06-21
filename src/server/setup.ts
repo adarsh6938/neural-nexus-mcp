@@ -14,10 +14,10 @@ export function setupServer(knowledgeGraphManager: any): Server {
   // Create server instance
   const server = new Server(
     {
-      name: 'memento-mcp',
+      name: 'neural-nexus-mcp',
       version: '1.0.0',
-      description: 'Memento MCP: Your persistent knowledge graph memory system',
-      publisher: 'gannonh',
+      description: 'Neural Nexus MCP: Your persistent knowledge graph memory system',
+      publisher: 'adarsh6938',
     },
     {
       capabilities: {

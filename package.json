@@ -1,20 +1,20 @@
 {
-  "name": "@gannonh/memento-mcp",
+  "name": "@adarsh6938/neural-nexus-mcp",
   "version": "0.3.9",
-  "description": "Memento MCP: Knowledge graph memory system for LLMs",
+  "description": "Neural Nexus MCP: Knowledge graph memory system for LLMs",
   "license": "MIT",
-  "author": "Gannon Hall",
-  "homepage": "https://github.com/gannonh/memento-mcp",
-  "bugs": "https://github.com/gannonh/memento-mcp/issues",
+  "author": "Adarsh Ramachandra",
+  "homepage": "https://github.com/adarsh6938/neural-nexus-mcp",
+  "bugs": "https://github.com/adarsh6938/neural-nexus-mcp/issues",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
-    "memento-mcp": "dist/index.js"
+    "neural-nexus-mcp": "dist/index.js"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/gannonh/memento-mcp.git"
+    "url": "https://github.com/adarsh6938/neural-nexus-mcp.git"
   },
   "files": [
     "dist"
