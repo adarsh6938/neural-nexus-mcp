@@ -1,6 +1,7 @@
 import type { EmbeddingService } from './EmbeddingService.js';
 import { DefaultEmbeddingService } from './DefaultEmbeddingService.js';
 import { OpenAIEmbeddingService } from './OpenAIEmbeddingService.js';
+import { TransformersEmbeddingService } from './TransformersEmbeddingService.js';
 import { logger } from '../utils/logger.js';
 
 /**
@@ -11,6 +12,8 @@ export interface EmbeddingServiceConfig {
   model?: string;
   dimensions?: number;
   apiKey?: string;
+  maxTokens?: number;
+  version?: string | number;
   [key: string]: unknown;
 }
 
@@ -62,7 +65,7 @@ export class EmbeddingServiceFactory {
    * @throws Error if the provider is not registered
    */
   static createService(config: EmbeddingServiceConfig = {}): EmbeddingService {
-    const providerName = (config.provider || 'default').toLowerCase();
+    const providerName = (config.provider || 'transformers').toLowerCase();
     logger.debug(`EmbeddingServiceFactory: Creating service with provider "${providerName}"`);
 
     const providerFn = EmbeddingServiceFactory.providers[providerName];
@@ -99,9 +102,11 @@ export class EmbeddingServiceFactory {
   static createFromEnvironment(): EmbeddingService {
     // Check if we should use mock embeddings (for testing)
     const useMockEmbeddings = process.env.MOCK_EMBEDDINGS === 'true';
+    const embeddingProvider = process.env.EMBEDDING_PROVIDER?.toLowerCase() || 'transformers';
 
     logger.debug('EmbeddingServiceFactory: Creating service from environment variables', {
       mockEmbeddings: useMockEmbeddings,
+      provider: embeddingProvider,
       openaiKeyPresent: !!process.env.OPENAI_API_KEY,
       embeddingModel: process.env.OPENAI_EMBEDDING_MODEL || 'default',
     });
@@ -111,10 +116,36 @@ export class EmbeddingServiceFactory {
       return new DefaultEmbeddingService();
     }
 
+    // Prioritize local embeddings (Transformers.js) over OpenAI
+    if (embeddingProvider === 'transformers' || embeddingProvider === 'local') {
+      try {
+        logger.debug('EmbeddingServiceFactory: Creating local Transformers embedding service');
+        const service = new TransformersEmbeddingService({
+          model: process.env.TRANSFORMERS_MODEL || 'Xenova/all-MiniLM-L6-v2',
+          dimensions: process.env.TRANSFORMERS_DIMENSIONS
+            ? parseInt(process.env.TRANSFORMERS_DIMENSIONS, 10)
+            : 384,
+          maxTokens: process.env.TRANSFORMERS_MAX_TOKENS
+            ? parseInt(process.env.TRANSFORMERS_MAX_TOKENS, 10)
+            : 512,
+        });
+        logger.info('EmbeddingServiceFactory: Local Transformers embedding service created', {
+          model: service.getModelInfo().name,
+          dimensions: service.getModelInfo().dimensions,
+        });
+        return service;
+      } catch (error) {
+        logger.error('EmbeddingServiceFactory: Failed to create Transformers service', error);
+        logger.info('EmbeddingServiceFactory: Falling back to default embedding service');
+        return new DefaultEmbeddingService();
+      }
+    }
+
+    // OpenAI as fallback option
     const openaiApiKey = process.env.OPENAI_API_KEY;
     const embeddingModel = process.env.OPENAI_EMBEDDING_MODEL || 'text-embedding-3-small';
 
-    if (openaiApiKey) {
+    if (embeddingProvider === 'openai' && openaiApiKey) {
       try {
         logger.debug('EmbeddingServiceFactory: Creating OpenAI embedding service', {
           model: embeddingModel,
@@ -131,16 +162,39 @@ export class EmbeddingServiceFactory {
       } catch (error) {
         logger.error('EmbeddingServiceFactory: Failed to create OpenAI service', error);
         logger.info('EmbeddingServiceFactory: Falling back to default embedding service');
-        // Fallback to default if OpenAI service creation fails
         return new DefaultEmbeddingService();
       }
     }
 
-    // No OpenAI API key, using default embedding service
-    logger.info(
-      'EmbeddingServiceFactory: No OpenAI API key found, using default embedding service'
-    );
-    return new DefaultEmbeddingService();
+    // Default fallback: use local transformers without API keys
+    try {
+      logger.info('EmbeddingServiceFactory: Using local Transformers as default (no API keys)');
+      return new TransformersEmbeddingService();
+    } catch (error) {
+      logger.error('EmbeddingServiceFactory: Failed to create default Transformers service', error);
+      logger.info('EmbeddingServiceFactory: Using mock embeddings as final fallback');
+      return new DefaultEmbeddingService();
+    }
+  }
+
+  /**
+   * Create a local Transformers.js embedding service
+   *
+   * @param model - Optional model name
+   * @param dimensions - Optional embedding dimensions
+   * @param maxTokens - Optional max tokens
+   * @returns Transformers embedding service
+   */
+  static createTransformersService(
+    model?: string,
+    dimensions?: number,
+    maxTokens?: number
+  ): EmbeddingService {
+    return new TransformersEmbeddingService({
+      model,
+      dimensions,
+      maxTokens,
+    });
   }
 
   /**
@@ -177,6 +231,14 @@ export class EmbeddingServiceFactory {
 // Register built-in providers
 EmbeddingServiceFactory.registerProvider('default', (config = {}) => {
   return new DefaultEmbeddingService(config.dimensions);
+});
+
+EmbeddingServiceFactory.registerProvider('transformers', (config = {}) => {
+  return new TransformersEmbeddingService(config);
+});
+
+EmbeddingServiceFactory.registerProvider('local', (config = {}) => {
+  return new TransformersEmbeddingService(config);
 });
 
 EmbeddingServiceFactory.registerProvider('openai', (config = {}) => {

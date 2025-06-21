@@ -139,7 +139,7 @@ export class Neo4jStorageProvider implements StorageProvider {
     this.vectorStore = new Neo4jVectorStore({
       connectionManager: this.connectionManager,
       indexName: this.config.vectorIndexName,
-      dimensions: 1536,
+      dimensions: this.config.vectorDimensions,
       similarityFunction: 'cosine',
       entityNodeLabel: 'Entity',
     });
@@ -148,6 +148,11 @@ export class Neo4jStorageProvider implements StorageProvider {
     try {
       // Set up embedding service
       this.embeddingService = EmbeddingServiceFactory.createFromEnvironment();
+
+      // Update vector store dimensions based on embedding service
+      const modelInfo = this.embeddingService.getModelInfo();
+      this.vectorStore.updateDimensions(modelInfo.dimensions);
+
       logger.debug('Neo4jStorageProvider: Embedding service initialized successfully', {
         provider: this.embeddingService.getProviderInfo().provider,
         model: this.embeddingService.getProviderInfo().model,

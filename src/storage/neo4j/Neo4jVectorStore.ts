@@ -19,7 +19,7 @@ export interface Neo4jVectorStoreOptions {
 export class Neo4jVectorStore implements VectorStore {
   private readonly connectionManager: Neo4jConnectionManager;
   private readonly indexName: string;
-  private readonly dimensions: number;
+  private dimensions: number;
   private readonly similarityFunction: 'cosine' | 'euclidean';
   private readonly entityNodeLabel: string;
   private initialized = false;
@@ -28,7 +28,7 @@ export class Neo4jVectorStore implements VectorStore {
   constructor(options: Neo4jVectorStoreOptions) {
     this.connectionManager = options.connectionManager;
     this.indexName = options.indexName || 'entity_embeddings';
-    this.dimensions = options.dimensions || 1536; // Default to OpenAI dimensions
+    this.dimensions = options.dimensions || 384; // Default to local embedding dimensions
     this.similarityFunction = options.similarityFunction || 'cosine';
     this.entityNodeLabel = options.entityNodeLabel || 'Entity';
     this.schemaManager = new Neo4jSchemaManager(this.connectionManager);
@@ -74,6 +74,25 @@ export class Neo4jVectorStore implements VectorStore {
       logger.error('Failed to initialize Neo4j vector store', error);
       throw error;
     }
+  }
+
+  /**
+   * Update the vector dimensions for this store
+   * @param newDimensions New vector dimensions
+   */
+  updateDimensions(newDimensions: number): void {
+    if (this.initialized) {
+      logger.warn(
+        'Updating dimensions after initialization may require recreating the vector index',
+        {
+          oldDimensions: this.dimensions,
+          newDimensions,
+        }
+      );
+    }
+
+    this.dimensions = newDimensions;
+    logger.debug('Vector store dimensions updated', { dimensions: this.dimensions });
   }
 
   /**

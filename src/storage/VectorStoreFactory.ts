@@ -71,7 +71,7 @@ export class VectorStoreFactory {
       vectorStore = new Neo4jVectorStore({
         connectionManager,
         indexName: options.indexName || 'entity_embeddings',
-        dimensions: options.dimensions || 1536,
+        dimensions: options.dimensions || 384,
         similarityFunction: options.similarityFunction || 'cosine',
       });
     } else {

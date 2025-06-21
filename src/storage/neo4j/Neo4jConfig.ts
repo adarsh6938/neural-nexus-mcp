@@ -47,6 +47,6 @@ export const DEFAULT_NEO4J_CONFIG: Neo4jConfig = {
   password: 'memento_password',
   database: 'neo4j',
   vectorIndexName: 'entity_embeddings',
-  vectorDimensions: 1536,
+  vectorDimensions: 384,
   similarityFunction: 'cosine',
 };
