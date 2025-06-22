@@ -80,16 +80,11 @@ Remember: This memory persists across all conversations and sessions.
    {
      "mcpServers": {
        "neural-nexus-mcp": {
-         "command": "npx",
-         "args": ["@adarsh6938/neural-nexus-mcp"],
+         "command": "neural-nexus-mcp",
          "env": {
            "NEO4J_URI": "bolt://localhost:7687",
            "NEO4J_USERNAME": "neo4j",
-           "NEO4J_PASSWORD": "neural_nexus_password",
-           "NEO4J_DATABASE": "neo4j",
-           "EMBEDDING_PROVIDER": "transformers",
-           "TRANSFORMERS_MODEL": "Xenova/all-MiniLM-L6-v2",
-           "LOG_LEVEL": "info"
+           "NEO4J_PASSWORD": "neural_nexus_password"
          }
        }
      }
@@ -113,22 +108,19 @@ Remember: This memory persists across all conversations and sessions.
    ```json
    {
      "neural-nexus-mcp": {
-       "command": "npx",
-       "args": ["@adarsh6938/neural-nexus-mcp"],
+       "command": "neural-nexus-mcp",
        "env": {
          "NEO4J_URI": "bolt://localhost:7687",
          "NEO4J_USERNAME": "neo4j",
-         "NEO4J_PASSWORD": "neural_nexus_password",
-         "NEO4J_DATABASE": "neo4j",
-         "EMBEDDING_PROVIDER": "transformers",
-         "TRANSFORMERS_MODEL": "Xenova/all-MiniLM-L6-v2",
-         "LOG_LEVEL": "info"
+         "NEO4J_PASSWORD": "neural_nexus_password"
        }
      }
    }
    ```
 
 4. **Add the system prompt** in the Rules for AI section
+
+> **That's it!** Neural Nexus MCP automatically uses local Transformers.js embeddings and configures everything else with sensible defaults.
 
 ## 🗄️ Database Setup
 
@@ -191,29 +183,20 @@ docker-compose up -d neo4j
 
 ### Complete Configuration Example
 
+Only customize these if you need to change defaults:
+
 ```json
 {
   "mcpServers": {
     "neural-nexus-mcp": {
-      "command": "npx",
-      "args": ["@adarsh6938/neural-nexus-mcp"],
+      "command": "neural-nexus-mcp",
       "env": {
-        "MEMORY_STORAGE_TYPE": "neo4j",
         "NEO4J_URI": "bolt://localhost:7687",
         "NEO4J_USERNAME": "neo4j",
         "NEO4J_PASSWORD": "neural_nexus_password",
         "NEO4J_DATABASE": "neo4j",
-        "NEO4J_VECTOR_INDEX": "entity_embeddings",
-        "NEO4J_VECTOR_DIMENSIONS": "384",
-        "NEO4J_SIMILARITY_FUNCTION": "cosine",
-        "EMBEDDING_PROVIDER": "transformers",
         "TRANSFORMERS_MODEL": "Xenova/all-MiniLM-L6-v2",
-        "TRANSFORMERS_DIMENSIONS": "384",
-        "TRANSFORMERS_MAX_TOKENS": "512",
-        "EMBEDDING_RATE_LIMIT_TOKENS": "20",
-        "EMBEDDING_RATE_LIMIT_INTERVAL": "60000",
-        "LOG_LEVEL": "info",
-        "DEBUG": "false"
+        "LOG_LEVEL": "info"
       }
     }
   }
@@ -228,9 +211,7 @@ docker-compose up -d neo4j
 | `NEO4J_USERNAME` | Neo4j username | `neo4j` |
 | `NEO4J_PASSWORD` | Neo4j password | `neural_nexus_password` |
 | `NEO4J_DATABASE` | Neo4j database name | `neo4j` |
-| `EMBEDDING_PROVIDER` | Embedding service provider | `transformers` |
 | `TRANSFORMERS_MODEL` | Transformers.js model | `Xenova/all-MiniLM-L6-v2` |
-| `TRANSFORMERS_DIMENSIONS` | Embedding dimensions | `384` |
 | `LOG_LEVEL` | Logging level | `info` |
 
 ## 🚨 Troubleshooting

@@ -147,16 +147,11 @@ Add to your `claude_desktop_config.json`:
 {
   "mcpServers": {
     "neural-nexus-mcp": {
-      "command": "npx",
-      "args": ["@adarsh6938/neural-nexus-mcp"],
+      "command": "neural-nexus-mcp",
       "env": {
         "NEO4J_URI": "bolt://localhost:7687",
         "NEO4J_USERNAME": "neo4j",
-        "NEO4J_PASSWORD": "neural_nexus_password",
-        "NEO4J_DATABASE": "neo4j",
-        "EMBEDDING_PROVIDER": "transformers",
-        "TRANSFORMERS_MODEL": "Xenova/all-MiniLM-L6-v2",
-        "LOG_LEVEL": "info"
+        "NEO4J_PASSWORD": "neural_nexus_password"
       }
     }
   }
@@ -170,24 +165,21 @@ Add to your MCP settings in Cursor preferences:
 ```json
 {
   "neural-nexus-mcp": {
-    "command": "npx",
-    "args": ["@adarsh6938/neural-nexus-mcp"],
+    "command": "neural-nexus-mcp",
     "env": {
       "NEO4J_URI": "bolt://localhost:7687",
       "NEO4J_USERNAME": "neo4j",
-      "NEO4J_PASSWORD": "neural_nexus_password",
-      "NEO4J_DATABASE": "neo4j",
-      "EMBEDDING_PROVIDER": "transformers",
-      "TRANSFORMERS_MODEL": "Xenova/all-MiniLM-L6-v2",
-      "LOG_LEVEL": "info"
+      "NEO4J_PASSWORD": "neural_nexus_password"
     }
   }
 }
 ```
 
-### 📝 **Complete Configuration Example**
+> **That's it!** Neural Nexus MCP will automatically use local Transformers.js embeddings and configure everything else with sensible defaults.
 
-For advanced users, here's a complete configuration with all options:
+### 📝 **Advanced Configuration (Optional)**
+
+If you need to customize settings, here's the complete configuration with all options:
 
 ```json
 {
@@ -196,22 +188,14 @@ For advanced users, here's a complete configuration with all options:
       "command": "npx",
       "args": ["@adarsh6938/neural-nexus-mcp"],
       "env": {
-        "MEMORY_STORAGE_TYPE": "neo4j",
         "NEO4J_URI": "bolt://localhost:7687",
         "NEO4J_USERNAME": "neo4j",
         "NEO4J_PASSWORD": "neural_nexus_password",
         "NEO4J_DATABASE": "neo4j",
-        "NEO4J_VECTOR_INDEX": "entity_embeddings",
-        "NEO4J_VECTOR_DIMENSIONS": "384",
-        "NEO4J_SIMILARITY_FUNCTION": "cosine",
         "EMBEDDING_PROVIDER": "transformers",
         "TRANSFORMERS_MODEL": "Xenova/all-MiniLM-L6-v2",
         "TRANSFORMERS_DIMENSIONS": "384",
-        "TRANSFORMERS_MAX_TOKENS": "512",
-        "EMBEDDING_RATE_LIMIT_TOKENS": "20",
-        "EMBEDDING_RATE_LIMIT_INTERVAL": "60000",
-        "LOG_LEVEL": "info",
-        "DEBUG": "false"
+        "LOG_LEVEL": "info"
       }
     }
   }
@@ -234,19 +218,33 @@ For advanced users, here's a complete configuration with all options:
      neo4j:latest
    ```
 
-3. **Add to your IDE** (Claude Desktop/Cursor) using the configuration above
+3. **Add to your IDE** with this minimal config:
+   ```json
+   {
+     "neural-nexus-mcp": {
+       "command": "neural-nexus-mcp",
+       "env": {
+         "NEO4J_URI": "bolt://localhost:7687",
+         "NEO4J_USERNAME": "neo4j", 
+         "NEO4J_PASSWORD": "neural_nexus_password"
+       }
+     }
+   }
+   ```
 
 4. **Add the system prompt** to your IDE settings
 
-5. **Test the connection** by asking your AI assistant:
+5. **Test it**:
    ```
-   "Can you check if Neural Nexus MCP is working and show me what tools are available?"
+   "Can you check if Neural Nexus MCP is working?"
    ```
 
 6. **Start using memory**:
    ```
-   "Remember that I prefer TypeScript for new projects and I'm working on a knowledge graph system."
+   "Remember that I prefer TypeScript for new projects."
    ```
+
+**That's it!** Everything else is configured automatically with sensible defaults.
 
 ### Database Initialization
 
