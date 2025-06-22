@@ -79,6 +79,66 @@ npm install -g @adarsh6938/neural-nexus-mcp
 
 ### Configuration
 
+## 🎯 System Prompts for IDEs
+
+To get the most out of Neural Nexus MCP, add these system prompts to your IDE configuration:
+
+### 📋 **Recommended System Prompt**
+
+```
+You have access to the Neural Nexus MCP knowledge graph memory system, which provides you with persistent memory capabilities.
+
+Your memory tools are provided by Neural Nexus MCP, a sophisticated knowledge graph implementation.
+
+When asked about past conversations or user information, always check the Neural Nexus MCP knowledge graph first.
+
+You should use semantic_search to find relevant information in your memory when answering questions.
+
+Key capabilities:
+- Store entities (people, concepts, events) with observations
+- Create relations between entities with confidence and strength values
+- Search semantically using local embeddings (no external APIs)
+- Track temporal changes and version history
+- Maintain persistent memory across conversations
+
+Always use the memory system to:
+1. Remember important user preferences and information
+2. Track project details and decisions
+3. Store insights and learnings from conversations
+4. Build knowledge graphs of related concepts
+5. Maintain context across multiple sessions
+```
+
+### 🔧 **Advanced System Prompt (Optional)**
+
+For power users who want more detailed guidance:
+
+```
+You are equipped with Neural Nexus MCP, a powerful knowledge graph memory system. This gives you persistent memory capabilities that work locally with no external API dependencies.
+
+MEMORY USAGE GUIDELINES:
+- Use create_entities for storing new information (people, concepts, projects, decisions)
+- Use create_relations to connect related information with semantic relationships
+- Use semantic_search to find relevant past information before answering questions
+- Use add_observations to update existing entities with new information
+- Use read_graph to understand the full context of stored knowledge
+
+BEST PRACTICES:
+1. Always search your memory first when users ask about past topics
+2. Store important user preferences, project details, and decisions
+3. Create meaningful relations between concepts (use active voice: "User prefers X", "Project includes Y")
+4. Use appropriate confidence and strength values for relations (0.0-1.0)
+5. Add metadata to track sources and context
+
+MEMORY STRUCTURE:
+- Entities: Discrete pieces of knowledge with observations
+- Relations: Connections between entities with semantic meaning
+- Temporal tracking: All changes are versioned and timestamped
+- Local embeddings: Semantic search powered by Transformers.js
+
+Remember: This memory persists across all conversations and sessions.
+```
+
 #### Claude Desktop
 
 Add to your `claude_desktop_config.json`:
@@ -87,11 +147,16 @@ Add to your `claude_desktop_config.json`:
 {
   "mcpServers": {
     "neural-nexus-mcp": {
-      "command": "neural-nexus-mcp",
+      "command": "npx",
+      "args": ["@adarsh6938/neural-nexus-mcp"],
       "env": {
         "NEO4J_URI": "bolt://localhost:7687",
         "NEO4J_USERNAME": "neo4j",
-        "NEO4J_PASSWORD": "neural_nexus_password"
+        "NEO4J_PASSWORD": "neural_nexus_password",
+        "NEO4J_DATABASE": "neo4j",
+        "EMBEDDING_PROVIDER": "transformers",
+        "TRANSFORMERS_MODEL": "Xenova/all-MiniLM-L6-v2",
+        "LOG_LEVEL": "info"
       }
     }
   }
@@ -100,20 +165,88 @@ Add to your `claude_desktop_config.json`:
 
 #### Cursor
 
-Add to your MCP settings:
+Add to your MCP settings in Cursor preferences:
 
 ```json
 {
   "neural-nexus-mcp": {
-    "command": "neural-nexus-mcp",
+    "command": "npx",
+    "args": ["@adarsh6938/neural-nexus-mcp"],
     "env": {
       "NEO4J_URI": "bolt://localhost:7687",
       "NEO4J_USERNAME": "neo4j",
-      "NEO4J_PASSWORD": "neural_nexus_password"
+      "NEO4J_PASSWORD": "neural_nexus_password",
+      "NEO4J_DATABASE": "neo4j",
+      "EMBEDDING_PROVIDER": "transformers",
+      "TRANSFORMERS_MODEL": "Xenova/all-MiniLM-L6-v2",
+      "LOG_LEVEL": "info"
     }
   }
 }
 ```
+
+### 📝 **Complete Configuration Example**
+
+For advanced users, here's a complete configuration with all options:
+
+```json
+{
+  "mcpServers": {
+    "neural-nexus-mcp": {
+      "command": "npx",
+      "args": ["@adarsh6938/neural-nexus-mcp"],
+      "env": {
+        "MEMORY_STORAGE_TYPE": "neo4j",
+        "NEO4J_URI": "bolt://localhost:7687",
+        "NEO4J_USERNAME": "neo4j",
+        "NEO4J_PASSWORD": "neural_nexus_password",
+        "NEO4J_DATABASE": "neo4j",
+        "NEO4J_VECTOR_INDEX": "entity_embeddings",
+        "NEO4J_VECTOR_DIMENSIONS": "384",
+        "NEO4J_SIMILARITY_FUNCTION": "cosine",
+        "EMBEDDING_PROVIDER": "transformers",
+        "TRANSFORMERS_MODEL": "Xenova/all-MiniLM-L6-v2",
+        "TRANSFORMERS_DIMENSIONS": "384",
+        "TRANSFORMERS_MAX_TOKENS": "512",
+        "EMBEDDING_RATE_LIMIT_TOKENS": "20",
+        "EMBEDDING_RATE_LIMIT_INTERVAL": "60000",
+        "LOG_LEVEL": "info",
+        "DEBUG": "false"
+      }
+    }
+  }
+}
+```
+
+### 🚀 **Quick Start Guide**
+
+1. **Install Neural Nexus MCP**:
+   ```bash
+   npm install -g @adarsh6938/neural-nexus-mcp
+   ```
+
+2. **Start Neo4j** (using Docker):
+   ```bash
+   docker run -d \
+     --name neural-nexus-neo4j \
+     -p 7474:7474 -p 7687:7687 \
+     -e NEO4J_AUTH=neo4j/neural_nexus_password \
+     neo4j:latest
+   ```
+
+3. **Add to your IDE** (Claude Desktop/Cursor) using the configuration above
+
+4. **Add the system prompt** to your IDE settings
+
+5. **Test the connection** by asking your AI assistant:
+   ```
+   "Can you check if Neural Nexus MCP is working and show me what tools are available?"
+   ```
+
+6. **Start using memory**:
+   ```
+   "Remember that I prefer TypeScript for new projects and I'm working on a knowledge graph system."
+   ```
 
 ### Database Initialization
 
