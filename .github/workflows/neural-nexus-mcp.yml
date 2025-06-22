@@ -111,65 +111,10 @@ jobs:
         TRANSFORMERS_MODEL: Xenova/all-MiniLM-L6-v2
         MOCK_EMBEDDINGS: true
 
-  publish:
-    name: Publish to npm
-    needs: build
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Use Node.js 20.x
-      uses: actions/setup-node@v4
-      with:
-        node-version: 20.x
-        registry-url: 'https://registry.npmjs.org'
-        
-    - name: Install dependencies
-      run: |
-        rm -rf node_modules
-        rm -f package-lock.json
-        npm install
-      
-    - name: Build package
-      run: npm run build
-      
-    - name: Set executable permissions
-      run: chmod +x dist/*.js
-      
-    - name: Check version and determine if publish is needed
-      id: check_version
-      run: |
-        # Get current version from package.json
-        CURRENT_VERSION=$(node -p "require('./package.json').version")
-        echo "Current version in package.json: $CURRENT_VERSION"
-        
-        # Get latest version from npm (if it exists)
-        if LATEST_VERSION=$(npm view @adarsh6938/neural-nexus-mcp version 2>/dev/null); then
-          echo "Latest published version: $LATEST_VERSION"
-          
-          # Compare versions using node
-          IS_HIGHER=$(node -e "const semver = require('semver'); console.log(semver.gt('$CURRENT_VERSION', '$LATEST_VERSION') ? 'true' : 'false')")
-          echo "is_higher=$IS_HIGHER" >> $GITHUB_OUTPUT
-          
-          if [ "$IS_HIGHER" = "true" ]; then
-            echo "Current version is higher than latest published version. Proceeding with publish."
-          else
-            echo "Current version is not higher than latest published version. Skipping publish."
-          fi
-        else
-          echo "No published version found. This appears to be the first publish."
-          echo "is_higher=true" >> $GITHUB_OUTPUT
-        fi
-      
-    - name: Publish to npm
-      if: steps.check_version.outputs.is_higher == 'true'
-      run: npm publish
-      env:
-        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        
-    - name: Skip publish - version not higher
-      if: steps.check_version.outputs.is_higher != 'true'
-      run: echo "✅ Build successful but publish skipped - current version is not higher than the latest published version." 
+  # Note: Automatic npm publishing has been disabled in favor of manual releases
+  # To publish a new version:
+  # 1. Update version in package.json
+  # 2. Update CHANGELOG.md
+  # 3. Run: npm run build
+  # 4. Run: npm publish --access public
+  # 5. Create git tag: git tag vX.X.X && git push origin vX.X.X 
