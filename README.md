@@ -246,6 +246,76 @@ If you need to customize settings, here's the complete configuration with all op
 
 **That's it!** Everything else is configured automatically with sensible defaults.
 
+### 📊 **Multiple Projects Setup**
+
+**Important**: Use different databases for different projects to keep knowledge graphs separate!
+
+#### Option 1: Different Database Names (Recommended)
+```json
+{
+  "mcpServers": {
+    "neural-nexus-project-a": {
+      "command": "neural-nexus-mcp",
+      "env": {
+        "NEO4J_URI": "bolt://localhost:7687",
+        "NEO4J_USERNAME": "neo4j",
+        "NEO4J_PASSWORD": "neural_nexus_password",
+        "NEO4J_DATABASE": "project_a"
+      }
+    },
+    "neural-nexus-project-b": {
+      "command": "neural-nexus-mcp",
+      "env": {
+        "NEO4J_URI": "bolt://localhost:7687",
+        "NEO4J_USERNAME": "neo4j",
+        "NEO4J_PASSWORD": "neural_nexus_password",
+        "NEO4J_DATABASE": "project_b"
+      }
+    }
+  }
+}
+```
+
+#### Option 2: Different Neo4j Instances
+```bash
+# Project A Neo4j (port 7687)
+docker run -d --name project-a-neo4j \
+  -p 7687:7687 -p 7474:7474 \
+  -e NEO4J_AUTH=neo4j/password_a neo4j:latest
+
+# Project B Neo4j (port 7688) 
+docker run -d --name project-b-neo4j \
+  -p 7688:7687 -p 7475:7474 \
+  -e NEO4J_AUTH=neo4j/password_b neo4j:latest
+```
+
+Then configure different URIs:
+```json
+{
+  "neural-nexus-project-a": {
+    "env": { "NEO4J_URI": "bolt://localhost:7687" }
+  },
+  "neural-nexus-project-b": {
+    "env": { "NEO4J_URI": "bolt://localhost:7688" }
+  }
+}
+```
+
+#### Creating New Databases in Neo4j
+
+Neo4j automatically creates databases when first accessed. You can also create them manually:
+
+1. **Neo4j Desktop**: Go to "Manage" → "Databases" → "Create Database"
+2. **Neo4j Browser**: Run `CREATE DATABASE project_name`
+3. **Automatic**: Neural Nexus MCP will create the database if it doesn't exist
+
+**Benefits of separate databases:**
+- ✅ Complete isolation between projects
+- ✅ Independent backup/restore
+- ✅ Different access controls
+- ✅ Project-specific optimizations
+- ✅ Clean knowledge graph boundaries
+
 ### Database Initialization
 
 Neural Nexus MCP includes command-line utilities for managing Neo4j operations:

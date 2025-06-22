@@ -156,6 +156,102 @@ Use the included `docker-compose.yml`:
 docker-compose up -d neo4j
 ```
 
+## 📊 Multiple Projects Setup
+
+**Important**: Use different databases for different projects to keep knowledge graphs separate!
+
+### Option 1: Different Database Names (Recommended)
+
+Configure multiple Neural Nexus MCP instances with different database names:
+
+```json
+{
+  "mcpServers": {
+    "neural-nexus-work": {
+      "command": "neural-nexus-mcp",
+      "env": {
+        "NEO4J_URI": "bolt://localhost:7687",
+        "NEO4J_USERNAME": "neo4j",
+        "NEO4J_PASSWORD": "neural_nexus_password",
+        "NEO4J_DATABASE": "work_project"
+      }
+    },
+    "neural-nexus-personal": {
+      "command": "neural-nexus-mcp",
+      "env": {
+        "NEO4J_URI": "bolt://localhost:7687",
+        "NEO4J_USERNAME": "neo4j",
+        "NEO4J_PASSWORD": "neural_nexus_password",
+        "NEO4J_DATABASE": "personal_knowledge"
+      }
+    },
+    "neural-nexus-research": {
+      "command": "neural-nexus-mcp",
+      "env": {
+        "NEO4J_URI": "bolt://localhost:7687",
+        "NEO4J_USERNAME": "neo4j",
+        "NEO4J_PASSWORD": "neural_nexus_password",
+        "NEO4J_DATABASE": "research_notes"
+      }
+    }
+  }
+}
+```
+
+### Option 2: Different Neo4j Instances
+
+Run separate Neo4j containers for complete isolation:
+
+```bash
+# Work project Neo4j (port 7687)
+docker run -d --name work-neo4j \
+  -p 7687:7687 -p 7474:7474 \
+  -e NEO4J_AUTH=neo4j/work_password \
+  neo4j:latest
+
+# Personal project Neo4j (port 7688)
+docker run -d --name personal-neo4j \
+  -p 7688:7687 -p 7475:7474 \
+  -e NEO4J_AUTH=neo4j/personal_password \
+  neo4j:latest
+```
+
+Then configure different URIs:
+```json
+{
+  "neural-nexus-work": {
+    "env": { 
+      "NEO4J_URI": "bolt://localhost:7687",
+      "NEO4J_PASSWORD": "work_password"
+    }
+  },
+  "neural-nexus-personal": {
+    "env": { 
+      "NEO4J_URI": "bolt://localhost:7688",
+      "NEO4J_PASSWORD": "personal_password"
+    }
+  }
+}
+```
+
+### Creating New Databases
+
+Neo4j automatically creates databases when first accessed. You can also create them manually:
+
+1. **Neo4j Desktop**: Go to "Manage" → "Databases" → "Create Database"
+2. **Neo4j Browser**: Run `CREATE DATABASE project_name`
+3. **Automatic**: Neural Nexus MCP will create the database if it doesn't exist
+
+### Benefits of Project Separation
+
+- ✅ **Complete isolation** between different projects
+- ✅ **Independent backup/restore** for each project
+- ✅ **Different access controls** per project
+- ✅ **Project-specific optimizations** and configurations
+- ✅ **Clean knowledge boundaries** prevent cross-contamination
+- ✅ **Easier maintenance** and troubleshooting
+- ✅ **Better performance** with smaller, focused datasets
+
 ## ✅ Testing Your Setup
 
 1. **Test database connection**:
