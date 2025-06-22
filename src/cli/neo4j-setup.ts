@@ -4,12 +4,13 @@
  * Neo4j CLI Utility
  *
  * This script provides command-line utilities for managing Neo4j
- * operations for the Memento MCP project.
+ * operations for the Neural Nexus MCP project.
  */
 
 import { Neo4jConnectionManager } from '../storage/neo4j/Neo4jConnectionManager.js';
 import { Neo4jSchemaManager } from '../storage/neo4j/Neo4jSchemaManager.js';
-import { DEFAULT_NEO4J_CONFIG, type Neo4jConfig } from '../storage/neo4j/Neo4jConfig.js';
+import { createStorageConfig } from '../config/storage.js';
+import type { Neo4jConfig } from '../storage/neo4j/Neo4jConfig.js';
 
 // Factory types for dependency injection in testing
 export type ConnectionManagerFactory = (config: Neo4jConfig) => Neo4jConnectionManager;
@@ -25,7 +26,7 @@ const defaultSchemaManagerFactory: SchemaManagerFactory = (connectionManager, de
   new Neo4jSchemaManager(connectionManager, undefined, debug);
 
 /**
- * Parse command line arguments into a Neo4j configuration object
+ * Get Neo4j configuration from environment variables and command line arguments
  *
  * @param argv Command line arguments array
  * @returns Object containing configuration and options
@@ -34,7 +35,18 @@ export function parseArgs(argv: string[]): {
   config: Neo4jConfig;
   options: { debug: boolean; recreate: boolean };
 } {
-  const config = { ...DEFAULT_NEO4J_CONFIG };
+  // Start with environment-aware configuration
+  const storageConfig = createStorageConfig(process.env.MEMORY_STORAGE_TYPE);
+  const config: Neo4jConfig = {
+    uri: storageConfig.options.neo4jUri!,
+    username: storageConfig.options.neo4jUsername!,
+    password: storageConfig.options.neo4jPassword!,
+    database: storageConfig.options.neo4jDatabase!,
+    vectorIndexName: storageConfig.options.neo4jVectorIndexName!,
+    vectorDimensions: storageConfig.options.neo4jVectorDimensions!,
+    similarityFunction: storageConfig.options.neo4jSimilarityFunction!,
+  };
+
   // Always enable debug by default - it provides useful information
   const options = { debug: true, recreate: false };
 
@@ -210,6 +222,9 @@ export async function initializeSchema(
  * Print help message
  */
 export function printHelp(): void {
+  // Get default configuration for help display
+  const storageConfig = createStorageConfig(process.env.MEMORY_STORAGE_TYPE);
+
   console.log(`
 Neo4j CLI Utility
 
@@ -219,13 +234,13 @@ Usage:
   neo4j-cli help              - Show this help message
 
 Options:
-  --uri <uri>              Neo4j server URI (default: ${DEFAULT_NEO4J_CONFIG.uri})
-  --username <username>    Neo4j username (default: ${DEFAULT_NEO4J_CONFIG.username})
-  --password <password>    Neo4j password (default: ${DEFAULT_NEO4J_CONFIG.password})
-  --database <name>        Neo4j database name (default: ${DEFAULT_NEO4J_CONFIG.database})
-  --vector-index <name>    Vector index name (default: ${DEFAULT_NEO4J_CONFIG.vectorIndexName})
-  --dimensions <number>    Vector dimensions (default: ${DEFAULT_NEO4J_CONFIG.vectorDimensions})
-  --similarity <function>  Similarity function (cosine|euclidean) (default: ${DEFAULT_NEO4J_CONFIG.similarityFunction})
+  --uri <uri>              Neo4j server URI (default: ${storageConfig.options.neo4jUri})
+  --username <username>    Neo4j username (default: ${storageConfig.options.neo4jUsername})
+  --password <password>    Neo4j password (default: [configured from environment])
+  --database <name>        Neo4j database name (default: ${storageConfig.options.neo4jDatabase})
+  --vector-index <name>    Vector index name (default: ${storageConfig.options.neo4jVectorIndexName})
+  --dimensions <number>    Vector dimensions (default: ${storageConfig.options.neo4jVectorDimensions})
+  --similarity <function>  Similarity function (cosine|euclidean) (default: ${storageConfig.options.neo4jSimilarityFunction})
   --no-debug               Disable detailed output (debug is ON by default)
   --recreate               Force recreation of constraints and indexes
   `);

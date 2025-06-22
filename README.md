@@ -1,11 +1,11 @@
-# Memento MCP: A Knowledge Graph Memory System for LLMs
+# Neural Nexus MCP: A Knowledge Graph Memory System for LLMs
 
-![Memento MCP Logo](assets/memento-logo-gray.svg)
+![Neural Nexus MCP Logo](assets/memento-logo-gray.svg)
 
 Scalable, high performance knowledge graph memory system with semantic retrieval, contextual recall, and temporal awareness. Provides any LLM client that supports the model context protocol (e.g., Claude Desktop, Cursor, Github Copilot) with resilient, adaptive, and persistent long-term ontological memory.
 
-[![Memento MCP Tests](https://github.com/gannonh/memento-mcp/actions/workflows/memento-mcp.yml/badge.svg)](https://github.com/gannonh/memento-mcp/actions/workflows/memento-mcp.yml)
-[![smithery badge](https://smithery.ai/badge/@gannonh/memento-mcp)](https://smithery.ai/server/@gannonh/memento-mcp)
+[![Neural Nexus MCP Tests](https://github.com/adarsh6938/neural-nexus-mcp/actions/workflows/neural-nexus-mcp.yml/badge.svg)](https://github.com/adarsh6938/neural-nexus-mcp/actions/workflows/neural-nexus-mcp.yml)
+[![smithery badge](https://smithery.ai/badge/@adarsh6938/neural-nexus-mcp)](https://smithery.ai/server/@adarsh6938/neural-nexus-mcp)
 
 ## Core Concepts
 
@@ -57,7 +57,7 @@ Example:
 
 ## Storage Backend
 
-Memento MCP uses Neo4j as its storage backend, providing a unified solution for both graph storage and vector search capabilities.
+Neural Nexus MCP uses Neo4j as its storage backend, providing a unified solution for both graph storage and vector search capabilities.
 
 ### Why Neo4j?
 
@@ -67,9 +67,20 @@ Memento MCP uses Neo4j as its storage backend, providing a unified solution for 
 - **Scalability**: Better performance with large knowledge graphs
 - **Simplified Architecture**: Clean design with a single database for all operations
 
+### Embedding Strategy
+
+Neural Nexus MCP uses **local embeddings** by default, providing:
+
+- **Privacy**: No data sent to external APIs
+- **Cost Efficiency**: No API usage fees
+- **Speed**: Local processing without network latency
+- **Offline Capability**: Works without internet connection
+- **Transformers.js**: Uses Xenova/all-MiniLM-L6-v2 model (384 dimensions) for high-quality embeddings
+
 ### Prerequisites
 
 - Neo4j 5.13+ (required for vector search capabilities)
+- Node.js 20+ (for Transformers.js embedding generation)
 
 ### Neo4j Desktop Setup (Recommended)
 
@@ -472,49 +483,62 @@ OPENAI_EMBEDDING_MODEL=text-embedding-3-small
 
 Add this to your `claude_desktop_config.json`:
 
+#### Claude Desktop Configuration
+
+Add this to your Claude Desktop MCP configuration file (`~/.claude_desktop_config.json`):
+
+**For npm package distribution:**
 ```json
 {
   "mcpServers": {
-    "memento": {
+    "neural-nexus-mcp": {
       "command": "npx",
-      "args": ["-y", "@gannonh/memento-mcp"],
+      "args": ["@adarsh6938/neural-nexus-mcp"],
       "env": {
         "MEMORY_STORAGE_TYPE": "neo4j",
-        "NEO4J_URI": "bolt://127.0.0.1:7687",
+        "NEO4J_URI": "bolt://localhost:7687",
         "NEO4J_USERNAME": "neo4j",
-        "NEO4J_PASSWORD": "memento_password",
+        "NEO4J_PASSWORD": "your_neo4j_password",
         "NEO4J_DATABASE": "neo4j",
         "NEO4J_VECTOR_INDEX": "entity_embeddings",
-        "NEO4J_VECTOR_DIMENSIONS": "1536",
+        "NEO4J_VECTOR_DIMENSIONS": "384",
         "NEO4J_SIMILARITY_FUNCTION": "cosine",
-        "OPENAI_API_KEY": "your-openai-api-key",
-        "OPENAI_EMBEDDING_MODEL": "text-embedding-3-small",
-        "DEBUG": "true"
+        "EMBEDDING_PROVIDER": "transformers",
+        "TRANSFORMERS_MODEL": "Xenova/all-MiniLM-L6-v2",
+        "TRANSFORMERS_DIMENSIONS": "384",
+        "TRANSFORMERS_MAX_TOKENS": "512",
+        "LOG_LEVEL": "info",
+        "MOCK_EMBEDDINGS": "false",
+        "DEBUG": "false"
       }
     }
   }
 }
 ```
 
-Alternatively, for local development, you can use:
-
+**For local development:**
 ```json
 {
   "mcpServers": {
-    "memento": {
-      "command": "/path/to/node",
-      "args": ["/path/to/memento-mcp/dist/index.js"],
+    "neural-nexus-mcp": {
+      "command": "node",
+      "args": ["/path/to/neural-nexus-mcp/dist/index.js"],
+      "cwd": "/path/to/neural-nexus-mcp",
       "env": {
         "MEMORY_STORAGE_TYPE": "neo4j",
-        "NEO4J_URI": "bolt://127.0.0.1:7687",
+        "NEO4J_URI": "bolt://localhost:7687",
         "NEO4J_USERNAME": "neo4j",
-        "NEO4J_PASSWORD": "memento_password",
+        "NEO4J_PASSWORD": "your_neo4j_password",
         "NEO4J_DATABASE": "neo4j",
         "NEO4J_VECTOR_INDEX": "entity_embeddings",
-        "NEO4J_VECTOR_DIMENSIONS": "1536",
+        "NEO4J_VECTOR_DIMENSIONS": "384",
         "NEO4J_SIMILARITY_FUNCTION": "cosine",
-        "OPENAI_API_KEY": "your-openai-api-key",
-        "OPENAI_EMBEDDING_MODEL": "text-embedding-3-small",
+        "EMBEDDING_PROVIDER": "transformers",
+        "TRANSFORMERS_MODEL": "Xenova/all-MiniLM-L6-v2",
+        "TRANSFORMERS_DIMENSIONS": "384",
+        "TRANSFORMERS_MAX_TOKENS": "512",
+        "LOG_LEVEL": "debug",
+        "MOCK_EMBEDDINGS": "false",
         "DEBUG": "true"
       }
     }
@@ -529,9 +553,9 @@ Alternatively, for local development, you can use:
 For optimal integration with Claude, add these statements to your system prompt:
 
 ```
-You have access to the Memento MCP knowledge graph memory system, which provides you with persistent memory capabilities.
-Your memory tools are provided by Memento MCP, a sophisticated knowledge graph implementation.
-When asked about past conversations or user information, always check the Memento MCP knowledge graph first.
+You have access to the Neural Nexus MCP knowledge graph memory system, which provides you with persistent memory capabilities.
+Your memory tools are provided by Neural Nexus MCP, a sophisticated knowledge graph implementation.
+When asked about past conversations or user information, always check the Neural Nexus MCP knowledge graph first.
 You should use semantic_search to find relevant information in your memory when answering questions.
 ```
 
@@ -561,7 +585,7 @@ The power of this approach is that users can interact naturally, while the LLM h
 
 ### Real-World Applications
 
-Memento's adaptive search capabilities provide practical benefits:
+Neural Nexus's adaptive search capabilities provide practical benefits:
 
 1. **Query Versatility**: Users don't need to worry about how to phrase questions - the system adapts to different query types automatically
 
@@ -577,7 +601,7 @@ For example, when a user asks "What do you know about machine learning?", the sy
 
 ### Vector Search Diagnostics
 
-Memento MCP includes built-in diagnostic capabilities to help troubleshoot vector search issues:
+Neural Nexus MCP includes built-in diagnostic capabilities to help troubleshoot vector search issues:
 
 - **Embedding Verification**: The system checks if entities have valid embeddings and automatically generates them if missing
 - **Vector Index Status**: Verifies that the vector index exists and is in the ONLINE state
@@ -641,38 +665,122 @@ npm run test:coverage
 
 ## Installation
 
-### Installing via Smithery
+### Quick Start with npx (Recommended)
 
-To install memento-mcp for Claude Desktop automatically via [Smithery](https://smithery.ai/server/@gannonh/memento-mcp):
-
-```bash
-npx -y @smithery/cli install @gannonh/memento-mcp --client claude
-```
-
-### Global Installation with npx
-
-You can run Memento MCP directly using npx without installing it globally:
+You can run Neural Nexus MCP directly using npx without installing it globally:
 
 ```bash
-npx -y @gannonh/memento-mcp
+npx @adarsh6938/neural-nexus-mcp
 ```
 
-This method is recommended for use with Claude Desktop and other MCP-compatible clients.
+This method is recommended for use with Claude Desktop, Cursor, and other MCP-compatible clients.
 
-### Local Installation
+### MCP Configuration
+
+Add Neural Nexus MCP to your MCP client configuration. Here's how to configure it for different clients:
+
+#### Claude Desktop Configuration
+
+Add this to your Claude Desktop MCP configuration file (`~/.claude_desktop_config.json`):
+
+**For npm package distribution:**
+```json
+{
+  "mcpServers": {
+    "neural-nexus-mcp": {
+      "command": "npx",
+      "args": ["@adarsh6938/neural-nexus-mcp"],
+      "env": {
+        "MEMORY_STORAGE_TYPE": "neo4j",
+        "NEO4J_URI": "bolt://localhost:7687",
+        "NEO4J_USERNAME": "neo4j",
+        "NEO4J_PASSWORD": "your_neo4j_password",
+        "NEO4J_DATABASE": "neo4j",
+        "NEO4J_VECTOR_INDEX": "entity_embeddings",
+        "NEO4J_VECTOR_DIMENSIONS": "384",
+        "NEO4J_SIMILARITY_FUNCTION": "cosine",
+        "EMBEDDING_PROVIDER": "transformers",
+        "TRANSFORMERS_MODEL": "Xenova/all-MiniLM-L6-v2",
+        "TRANSFORMERS_DIMENSIONS": "384",
+        "TRANSFORMERS_MAX_TOKENS": "512",
+        "LOG_LEVEL": "info",
+        "MOCK_EMBEDDINGS": "false",
+        "DEBUG": "false"
+      }
+    }
+  }
+}
+```
+
+**For local development:**
+```json
+{
+  "mcpServers": {
+    "neural-nexus-mcp": {
+      "command": "node",
+      "args": ["/path/to/neural-nexus-mcp/dist/index.js"],
+      "cwd": "/path/to/neural-nexus-mcp",
+      "env": {
+        "MEMORY_STORAGE_TYPE": "neo4j",
+        "NEO4J_URI": "bolt://localhost:7687",
+        "NEO4J_USERNAME": "neo4j",
+        "NEO4J_PASSWORD": "your_neo4j_password",
+        "NEO4J_DATABASE": "neo4j",
+        "NEO4J_VECTOR_INDEX": "entity_embeddings",
+        "NEO4J_VECTOR_DIMENSIONS": "384",
+        "NEO4J_SIMILARITY_FUNCTION": "cosine",
+        "EMBEDDING_PROVIDER": "transformers",
+        "TRANSFORMERS_MODEL": "Xenova/all-MiniLM-L6-v2",
+        "TRANSFORMERS_DIMENSIONS": "384",
+        "TRANSFORMERS_MAX_TOKENS": "512",
+        "LOG_LEVEL": "debug",
+        "MOCK_EMBEDDINGS": "false",
+        "DEBUG": "true"
+      }
+    }
+  }
+}
+```
+
+### Configuration Options
+
+All configuration is done via environment variables in the MCP configuration. Key variables:
+
+#### Required Variables
+- `NEO4J_URI`: Your Neo4j database URI (e.g., `bolt://localhost:7687`)
+- `NEO4J_USERNAME`: Neo4j username (usually `neo4j`)
+- `NEO4J_PASSWORD`: Your Neo4j password
+
+#### Optional Variables
+- `EMBEDDING_PROVIDER`: Set to `transformers` for local embeddings (default)
+- `TRANSFORMERS_MODEL`: Embedding model to use (default: `Xenova/all-MiniLM-L6-v2`)
+- `LOG_LEVEL`: Logging level (`debug`, `info`, `warn`, `error`)
+- `MOCK_EMBEDDINGS`: Set to `true` for testing without real embeddings
+
+### Alternative: Local Installation
 
 For development or contributing to the project:
 
 ```bash
 # Install locally
-npm install @gannonh/memento-mcp
+npm install @adarsh6938/neural-nexus-mcp
 
 # Or clone the repository
-git clone https://github.com/gannonh/memento-mcp.git
-cd memento-mcp
+git clone https://github.com/adarsh6938/neural-nexus-mcp.git
+cd neural-nexus-mcp
 npm install
 ```
 
 ## License
 
 MIT
+
+### Configuration Files
+
+This repository includes example configuration files to help you get started:
+
+- **`example-mcp-config.json`**: For npm package distribution (recommended for end users)
+- **`example-local-dev-mcp.json`**: For local development (when working on the codebase)
+- **`.cursor/mcp.json`**: Active local development configuration (if you're developing in this repository)
+
+Simply copy the appropriate example file and customize the environment variables for your setup.
