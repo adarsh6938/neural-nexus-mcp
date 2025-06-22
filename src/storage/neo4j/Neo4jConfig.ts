@@ -44,7 +44,7 @@ export interface Neo4jConfig {
 export const DEFAULT_NEO4J_CONFIG: Neo4jConfig = {
   uri: 'bolt://localhost:7687',
   username: 'neo4j',
-  password: 'memento_password',
+  password: 'neural_nexus_password',
   database: 'neo4j',
   vectorIndexName: 'entity_embeddings',
   vectorDimensions: 384,

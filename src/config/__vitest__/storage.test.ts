@@ -88,7 +88,7 @@ describe('storage configuration module', () => {
         options: {
           neo4jUri: 'bolt://localhost:7687',
           neo4jUsername: 'neo4j',
-          neo4jPassword: 'memento_password',
+          neo4jPassword: 'neural_nexus_password',
           neo4jDatabase: 'neo4j',
           neo4jVectorIndexName: 'entity_embeddings',
           neo4jVectorDimensions: 1536,
@@ -135,7 +135,7 @@ describe('storage configuration module', () => {
         options: {
           neo4jUri: 'bolt://localhost:7687',
           neo4jUsername: 'neo4j',
-          neo4jPassword: 'memento_password',
+          neo4jPassword: 'neural_nexus_password',
           neo4jDatabase: 'neo4j',
           neo4jVectorIndexName: 'entity_embeddings',
           neo4jVectorDimensions: 1536,
@@ -177,7 +177,7 @@ describe('storage configuration module', () => {
           options: expect.objectContaining({
             neo4jUri: 'bolt://localhost:7687',
             neo4jUsername: 'neo4j',
-            neo4jPassword: 'memento_password',
+            neo4jPassword: 'neural_nexus_password',
             neo4jDatabase: 'neo4j',
             neo4jVectorIndexName: 'entity_embeddings',
             neo4jVectorDimensions: 1536,

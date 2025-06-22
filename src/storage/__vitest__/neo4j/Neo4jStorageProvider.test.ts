@@ -302,7 +302,7 @@ describe('Neo4jStorageProvider', () => {
     mockConfig = {
       uri: 'bolt://localhost:7687',
       username: 'neo4j',
-      password: 'memento_password',
+      password: 'neural_nexus_password',
       database: 'neo4j',
       vectorIndexName: 'entity_embeddings',
       vectorDimensions: 1536,

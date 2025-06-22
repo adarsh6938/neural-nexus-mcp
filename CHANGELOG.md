@@ -1,27 +1,48 @@
 # Changelog
 
-All notable changes to Memento MCP will be documented in this file.
+All notable changes to Neural Nexus MCP will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.3.9] - 2025-05-08
+## [Unreleased]
+
+### Added
+- Rebranded from Memento MCP to Neural Nexus MCP
+- Updated all references to use Neural Nexus branding
+- Changed default password from memento_password to neural_nexus_password
+- Updated Docker container name to neural-nexus-neo4j
+- Updated GitHub workflow to neural-nexus-mcp.yml
+- Local embedding generation using Transformers.js (Xenova/all-MiniLM-L6-v2)
+- Complete privacy-focused solution with no external API dependencies
 
 ### Changed
+- Package name updated to @adarsh6938/neural-nexus-mcp
+- Repository URL updated to adarsh6938/neural-nexus-mcp
+- All documentation updated with Neural Nexus MCP branding
+- Moved from OpenAI embeddings to local Transformers.js embeddings
+- Removed all OpenAI API dependencies and references
 
-- Updated dependencies to latest versions:
-  - @modelcontextprotocol/sdk from 1.8.0 to 1.11.0
-  - axios from 1.8.4 to 1.9.0
-  - dotenv from 16.4.7 to 16.5.0
-  - eslint from 9.23.0 to 9.26.0
-  - eslint-config-prettier from 10.1.1 to 10.1.3
-  - glob from 11.0.1 to 11.0.2
-  - openai from 4.91.1 to 4.97.0
-  - tsx from 4.19.3 to 4.19.4
-  - typescript from 5.8.2 to 5.8.3
-  - vitest and @vitest/coverage-v8 from 3.1.1 to 3.1.3
-  - zod from 3.24.2 to 3.24.4
-  - @typescript-eslint/eslint-plugin and @typescript-eslint/parser from 8.29.0 to 8.32.0
+### Removed
+- OpenAI API integration and dependencies
+- External API requirements for embedding generation
+- All OpenAI-related configuration options and environment variables
+
+## [0.3.9] - 2024-01-21
+
+### Added
+- Complete rebranding from memento-mcp to neural-nexus-mcp
+- Updated npm package distribution approach
+- Enhanced documentation and configuration examples
+
+### Changed
+- Package name and repository references
+- Default configuration values
+- Logo and branding assets
+
+### Fixed
+- Configuration management for npm package distribution
+- Documentation consistency across all files
 
 ## [0.3.8] - 2025-04-01
 
@@ -30,7 +51,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial public release
 - Knowledge graph memory system with entities and relations
 - Neo4j storage backend with unified graph and vector storage
-- Semantic search using OpenAI embeddings
+- Semantic search using local Transformers.js embeddings
 - Temporal awareness with version history for all graph elements
 - Time-based confidence decay for relations
 - Rich metadata support for entities and relations

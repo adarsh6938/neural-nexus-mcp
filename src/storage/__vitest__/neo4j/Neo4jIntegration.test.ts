@@ -22,7 +22,7 @@ describe('Neo4j Integration Test', () => {
     connectionManager = new Neo4jConnectionManager({
       uri: 'bolt://localhost:7687',
       username: 'neo4j',
-      password: 'memento_password',
+      password: 'neural_nexus_password',
       database: 'neo4j',
     });
     schemaManager = new Neo4jSchemaManager(connectionManager);

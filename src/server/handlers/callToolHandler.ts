@@ -1,4 +1,5 @@
 import * as toolHandlers from './toolHandlers/index.js';
+import { EmbeddingServiceFactory } from '../../embeddings/EmbeddingServiceFactory.js';
 
 /**
  * Handles the CallTool request.
@@ -452,165 +453,30 @@ export async function handleCallToolRequest(
         }
 
       case 'debug_embedding_config':
-        // Diagnostic tool to check embedding configuration
-        try {
-          // Check for OpenAI API key
-          const hasOpenAIKey = !!process.env.OPENAI_API_KEY;
-          const embeddingModel = process.env.OPENAI_EMBEDDING_MODEL || 'text-embedding-3-small';
+        // Get embedding configuration info
+        const embeddingService = EmbeddingServiceFactory.createFromEnvironment();
+        const modelInfo = embeddingService.getModelInfo();
 
-          // Check if embedding job manager is initialized
-          const hasEmbeddingJobManager = !!knowledgeGraphManager.embeddingJobManager;
-
-          // Get storage provider info
-          const storageType = process.env.MEMORY_STORAGE_TYPE || 'neo4j';
-          const storageProvider = knowledgeGraphManager.storageProvider;
-
-          // Get Neo4j specific configuration
-          const neo4jInfo: {
-            uri: string;
-            username: string;
-            database: string;
-            vectorIndex: string;
-            vectorDimensions: string;
-            similarityFunction: string;
-            connectionStatus: string;
-            vectorStoreStatus?: string;
-          } = {
-            uri: process.env.NEO4J_URI || 'default',
-            username: process.env.NEO4J_USERNAME ? 'configured' : 'not configured',
-            database: process.env.NEO4J_DATABASE || 'neo4j',
-            vectorIndex: process.env.NEO4J_VECTOR_INDEX || 'entity_embeddings',
-            vectorDimensions: process.env.NEO4J_VECTOR_DIMENSIONS || '1536',
-            similarityFunction: process.env.NEO4J_SIMILARITY_FUNCTION || 'cosine',
-            connectionStatus: 'unknown',
-          };
-
-          // Check if Neo4j connection manager is available
-          if (storageProvider && typeof storageProvider.getConnectionManager === 'function') {
-            try {
-              const connectionManager = storageProvider.getConnectionManager();
-              if (connectionManager) {
-                neo4jInfo.connectionStatus = 'available';
-
-                // Check if vector store is initialized
-                if (storageProvider.vectorStore) {
-                  neo4jInfo.vectorStoreStatus = 'available';
-                } else {
-                  neo4jInfo.vectorStoreStatus = 'not initialized';
-                }
-              }
-            } catch (error: Error | unknown) {
-              const errorMessage = error instanceof Error ? error.message : String(error);
-              neo4jInfo.connectionStatus = `error: ${errorMessage}`;
-            }
-          }
-
-          // Count entities with embeddings via Neo4j vector store
-          let entitiesWithEmbeddings = 0;
-          if (storageProvider && storageProvider.countEntitiesWithEmbeddings) {
-            try {
-              entitiesWithEmbeddings = await storageProvider.countEntitiesWithEmbeddings();
-            } catch (error) {
-              process.stderr.write(`[ERROR] Error checking embeddings count: ${error}\n`);
-            }
-          }
-
-          // Get embedding service information
-          let embeddingServiceInfo = null;
-          if (
-            hasEmbeddingJobManager &&
-            knowledgeGraphManager.embeddingJobManager.embeddingService
-          ) {
-            try {
-              embeddingServiceInfo = (
-                knowledgeGraphManager.embeddingJobManager as Record<
-                  string,
-                  Record<string, () => unknown>
-                >
-              ).embeddingService.getModelInfo();
-            } catch (error: Error | unknown) {
-              const errorMessage = error instanceof Error ? error.message : String(error);
-              process.stderr.write(
-                `[ERROR] Error getting embedding service info: ${errorMessage}\n`
-              );
-            }
-          }
-
-          // Get embedding service provider info if available
-          let embeddingProviderInfo = null;
-          if (storageProvider && storageProvider.embeddingService) {
-            try {
-              embeddingProviderInfo = (
-                storageProvider as Record<string, Record<string, () => unknown>>
-              ).embeddingService.getProviderInfo();
-            } catch (error: Error | unknown) {
-              const errorMessage = error instanceof Error ? error.message : String(error);
-              process.stderr.write(
-                `[ERROR] Error getting embedding provider info: ${errorMessage}\n`
-              );
-            }
-          }
-
-          // Check pending embedding jobs if available
-          let pendingJobs = 0;
-          if (hasEmbeddingJobManager && knowledgeGraphManager.embeddingJobManager.getPendingJobs) {
-            try {
-              pendingJobs = (
-                knowledgeGraphManager.embeddingJobManager as Record<string, () => Array<unknown>>
-              ).getPendingJobs().length;
-            } catch (error: Error | unknown) {
-              const errorMessage = error instanceof Error ? error.message : String(error);
-              process.stderr.write(`[ERROR] Error getting pending jobs: ${errorMessage}\n`);
-            }
-          }
-
-          // Return diagnostic information with proper formatting
-          const diagnosticInfo = {
-            storage_type: storageType,
-            openai_api_key_present: hasOpenAIKey,
-            embedding_model: embeddingModel,
-            embedding_job_manager_initialized: hasEmbeddingJobManager,
-            embedding_service_initialized: !!embeddingProviderInfo,
-            embedding_service_info: embeddingServiceInfo,
-            embedding_provider_info: embeddingProviderInfo,
-            neo4j_config: neo4jInfo,
-            entities_with_embeddings: entitiesWithEmbeddings,
-            pending_embedding_jobs: pendingJobs,
-            environment_variables: {
-              DEBUG: process.env.DEBUG === 'true',
-              NODE_ENV: process.env.NODE_ENV,
-              MEMORY_STORAGE_TYPE: process.env.MEMORY_STORAGE_TYPE || 'neo4j',
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(
+                {
+                  embeddingProvider: process.env.EMBEDDING_PROVIDER || 'transformers',
+                  modelInfo,
+                  transformersModel: process.env.TRANSFORMERS_MODEL || 'Xenova/all-MiniLM-L6-v2',
+                  transformersDimensions: process.env.TRANSFORMERS_DIMENSIONS || '384',
+                  transformersMaxTokens: process.env.TRANSFORMERS_MAX_TOKENS || '512',
+                  mockEmbeddings: process.env.MOCK_EMBEDDINGS === 'true',
+                  debugMode: process.env.DEBUG === 'true',
+                },
+                null,
+                2
+              ),
             },
-          };
-
-          return {
-            content: [
-              {
-                type: 'text',
-                text: JSON.stringify(diagnosticInfo, null, 2),
-              },
-            ],
-          };
-        } catch (error: Error | unknown) {
-          const errorMessage = error instanceof Error ? error.message : String(error);
-          const errorStack = error instanceof Error ? error.stack : undefined;
-          process.stderr.write(`[ERROR] Error in debug_embedding_config: ${errorMessage}\n`);
-          return {
-            content: [
-              {
-                type: 'text',
-                text: JSON.stringify(
-                  {
-                    error: errorMessage,
-                    stack: errorStack,
-                  },
-                  null,
-                  2
-                ),
-              },
-            ],
-          };
-        }
+          ],
+        };
 
       case 'diagnose_vector_search':
         if (

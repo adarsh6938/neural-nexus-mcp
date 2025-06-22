@@ -28,7 +28,7 @@ describe('Neo4j CLI Utility', () => {
 
       expect(config.uri).toBe('bolt://localhost:7687');
       expect(config.username).toBe('neo4j');
-      expect(config.password).toBe('memento_password');
+      expect(config.password).toBe('neural_nexus_password');
     });
 
     it('should parse command line arguments correctly', () => {
@@ -57,7 +57,7 @@ describe('Neo4j CLI Utility', () => {
       const config: Neo4jConfig = {
         uri: 'bolt://localhost:7687',
         username: 'neo4j',
-        password: 'memento_password',
+        password: 'neural_nexus_password',
         database: 'neo4j',
         vectorIndexName: 'entity_embeddings',
         vectorDimensions: 1536,
@@ -102,7 +102,7 @@ describe('Neo4j CLI Utility', () => {
       const config: Neo4jConfig = {
         uri: 'bolt://localhost:7687',
         username: 'neo4j',
-        password: 'memento_password',
+        password: 'neural_nexus_password',
         database: 'neo4j',
         vectorIndexName: 'entity_embeddings',
         vectorDimensions: 1536,

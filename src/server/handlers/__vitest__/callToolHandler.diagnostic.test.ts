@@ -141,8 +141,9 @@ describe('Diagnostic Tool Handlers', () => {
   describe('debug_embedding_config tool', () => {
     it('should return configuration diagnostics', async () => {
       // Set up environment for testing
-      process.env.OPENAI_API_KEY = 'test-key';
-      process.env.OPENAI_EMBEDDING_MODEL = 'text-embedding-ada-002';
+      process.env.EMBEDDING_PROVIDER = 'transformers';
+      process.env.TRANSFORMERS_MODEL = 'Xenova/all-MiniLM-L6-v2';
+      process.env.MOCK_EMBEDDINGS = 'true';
 
       // Create request
       const request = {
@@ -159,19 +160,19 @@ describe('Diagnostic Tool Handlers', () => {
       const diagnosticInfo = JSON.parse(result.content[0].text);
 
       // Check diagnostic info
-      expect(diagnosticInfo.openai_api_key_present).toBe(true);
-      expect(diagnosticInfo.embedding_model).toBe('text-embedding-ada-002');
-      expect(diagnosticInfo.embedding_job_manager_initialized).toBe(true);
-      expect(diagnosticInfo.entities_with_embeddings).toBe(0);
-      expect(diagnosticInfo).toHaveProperty('embedding_service_info');
-      expect(diagnosticInfo).toHaveProperty('environment_variables');
+      expect(diagnosticInfo.embeddingProvider).toBe('transformers');
+      expect(diagnosticInfo.transformersModel).toBe('Xenova/all-MiniLM-L6-v2');
+      expect(diagnosticInfo.mockEmbeddings).toBe(true);
+      expect(diagnosticInfo).toHaveProperty('modelInfo');
+
+      // Clean up
+      delete process.env.EMBEDDING_PROVIDER;
+      delete process.env.TRANSFORMERS_MODEL;
+      delete process.env.MOCK_EMBEDDINGS;
     });
 
-    it('should handle missing API key', async () => {
-      // Remove API key
-      delete process.env.OPENAI_API_KEY;
-
-      // Create request
+    it('should handle default configuration', async () => {
+      // Create request without setting environment variables
       const request = {
         params: {
           name: 'debug_embedding_config',
@@ -185,8 +186,10 @@ describe('Diagnostic Tool Handlers', () => {
       // Parse the response JSON
       const diagnosticInfo = JSON.parse(result.content[0].text);
 
-      // Check that it shows API key is missing
-      expect(diagnosticInfo.openai_api_key_present).toBe(false);
+      // Check that it shows default values
+      expect(diagnosticInfo.embeddingProvider).toBe('transformers');
+      expect(diagnosticInfo.transformersModel).toBe('Xenova/all-MiniLM-L6-v2');
+      expect(diagnosticInfo.mockEmbeddings).toBe(false);
     });
   });
 

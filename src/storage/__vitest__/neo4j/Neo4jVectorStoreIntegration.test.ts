@@ -39,7 +39,7 @@ describeOrSkip('Neo4j Vector Index Test', () => {
     const neo4jConfig: Neo4jConfig = {
       uri: 'bolt://localhost:7687',
       username: 'neo4j',
-      password: 'memento_password',
+      password: 'neural_nexus_password',
       database: 'neo4j',
       vectorIndexName: fallbackIndexName,
       vectorDimensions: VECTOR_DIMENSIONS, // Update to match existing index dimensions

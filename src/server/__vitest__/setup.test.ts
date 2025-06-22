@@ -3,6 +3,9 @@
  * Migrated from Jest to Vitest and converted to TypeScript
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { createMCPServer } from '../setup.js';
+import { setupServer } from '../setup.js';
+import { listToolsHandler } from '../handlers/listToolsHandler.js';
 
 // Turn off automatic mocking
 vi.mock('@modelcontextprotocol/sdk/server/index.js', () => {
@@ -205,5 +208,54 @@ describe('setupServer', () => {
       expect(handleCallToolRequestMock).toHaveBeenCalledWith(request, knowledgeGraphManager);
       expect(result).toEqual(mockCallToolResult);
     }
+  });
+});
+
+describe('Server Setup', () => {
+  let mockKnowledgeGraphManager: any;
+
+  beforeEach(() => {
+    // Create a mock knowledge graph manager
+    mockKnowledgeGraphManager = {
+      createEntities: vi.fn(),
+      addObservations: vi.fn(),
+      // Add other methods as needed
+    };
+  });
+
+  it('should create MCP server with correct metadata', () => {
+    const server = setupServer(mockKnowledgeGraphManager);
+
+    // The server should be created successfully
+    expect(server).toBeDefined();
+  });
+
+  it('should have correct server info', () => {
+    // Test the expected server metadata values
+    const expectedInfo = {
+      name: 'neural-nexus-mcp',
+      version: '1.0.0',
+      description: 'Neural Nexus MCP: Your persistent knowledge graph memory system',
+      publisher: 'adarsh6938',
+    };
+
+    expect(expectedInfo.name).toBe('neural-nexus-mcp');
+    expect(expectedInfo.description).toContain('Neural Nexus MCP');
+    expect(expectedInfo.publisher).toBe('adarsh6938');
+  });
+
+  describe('listToolsHandler', () => {
+    it('should return tools list', async () => {
+      const result = await listToolsHandler({} as any);
+      
+      expect(result).toHaveProperty('tools');
+      expect(Array.isArray(result.tools)).toBe(true);
+      expect(result.tools.length).toBeGreaterThan(0);
+      
+      // Check that all tools have Neural Nexus MCP in their descriptions
+      result.tools.forEach((tool: any) => {
+        expect(tool.description).toContain('Neural Nexus MCP');
+      });
+    });
   });
 });

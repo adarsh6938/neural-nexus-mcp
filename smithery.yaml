@@ -1,5 +1,65 @@
 # Smithery configuration file: https://smithery.ai/docs/config#smitheryyaml
 
+package: "@adarsh6938/neural-nexus-mcp"
+description: "Neural Nexus MCP: Knowledge graph memory system for LLMs with semantic retrieval and temporal awareness"
+environment:
+  NEO4J_URI:
+    description: "Neo4j connection URI"
+    default: "bolt://localhost:7687"
+    required: true
+  NEO4J_USERNAME:
+    description: "Neo4j username"
+    default: "neo4j"
+    required: true
+  NEO4J_PASSWORD:
+    description: "Neo4j password"
+    default: neural_nexus_password
+    required: true
+  NEO4J_DATABASE:
+    description: "Neo4j database name"
+    default: "neo4j"
+    required: false
+  NEO4J_VECTOR_INDEX:
+    description: "Neo4j vector index name"
+    default: "entity_embeddings"
+    required: false
+  NEO4J_VECTOR_DIMENSIONS:
+    description: "Vector embedding dimensions"
+    default: "384"
+    required: false
+  NEO4J_SIMILARITY_FUNCTION:
+    description: "Vector similarity function"
+    default: "cosine"
+    required: false
+  EMBEDDING_PROVIDER:
+    description: "Embedding service provider"
+    default: "transformers"
+    required: false
+  TRANSFORMERS_MODEL:
+    description: "Transformers.js model for embeddings"
+    default: "Xenova/all-MiniLM-L6-v2"
+    required: false
+  TRANSFORMERS_DIMENSIONS:
+    description: "Embedding dimensions for Transformers.js"
+    default: "384"
+    required: false
+  TRANSFORMERS_MAX_TOKENS:
+    description: "Maximum tokens for Transformers.js"
+    default: "512"
+    required: false
+  LOG_LEVEL:
+    description: "Logging level"
+    default: "info"
+    required: false
+  MOCK_EMBEDDINGS:
+    description: "Use mock embeddings for testing"
+    default: "false"
+    required: false
+  DEBUG:
+    description: "Enable debug mode"
+    default: "false"
+    required: false
+
 startCommand:
   type: stdio
   configSchema:
@@ -10,7 +70,6 @@ startCommand:
       - neo4jUsername
       - neo4jPassword
       - neo4jDatabase
-      - openAiApiKey
     properties:
       neo4jUri:
         type: string
@@ -22,16 +81,12 @@ startCommand:
         description: Neo4j username
       neo4jPassword:
         type: string
-        default: memento_password
+        default: neural_nexus_password
         description: Neo4j password
       neo4jDatabase:
         type: string
         default: neo4j
         description: Neo4j database name
-      openAiApiKey:
-        type: string
-        default: your-openai-api-key
-        description: OpenAI API key for embeddings
   commandFunction:
     # A JS function that produces the CLI command based on the given config to start the MCP on stdio.
     |-
@@ -45,16 +100,17 @@ startCommand:
         NEO4J_DATABASE: config.neo4jDatabase,
         // Additional environment variables with defaults
         NEO4J_VECTOR_INDEX: 'entity_embeddings',
-        NEO4J_VECTOR_DIMENSIONS: '1536',
+        NEO4J_VECTOR_DIMENSIONS: '384',
         NEO4J_SIMILARITY_FUNCTION: 'cosine',
-        OPENAI_API_KEY: config.openAiApiKey,
-        OPENAI_EMBEDDING_MODEL: 'text-embedding-3-small',
+        EMBEDDING_PROVIDER: 'transformers',
+        TRANSFORMERS_MODEL: 'Xenova/all-MiniLM-L6-v2',
+        TRANSFORMERS_DIMENSIONS: '384',
+        TRANSFORMERS_MAX_TOKENS: '512',
         DEBUG: 'true'
       }
     })
   exampleConfig:
     neo4jUri: bolt://127.0.0.1:7687
     neo4jUsername: neo4j
-    neo4jPassword: memento_password
+    neo4jPassword: neural_nexus_password
     neo4jDatabase: neo4j
-    openAiApiKey: your-openai-api-key

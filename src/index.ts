@@ -19,24 +19,13 @@ const storageProvider = initializeStorageProvider();
 let embeddingJobManager: EmbeddingJobManager | undefined = undefined;
 try {
   // Force debug logging to help troubleshoot
-  logger.debug(`OpenAI API key exists: ${!!process.env.OPENAI_API_KEY}`);
-  logger.debug(`OpenAI Embedding model: ${process.env.OPENAI_EMBEDDING_MODEL || 'not set'}`);
   logger.debug(`Storage provider type: ${process.env.MEMORY_STORAGE_TYPE || 'default'}`);
 
-  // Ensure OPENAI_API_KEY is defined for embedding generation
-  if (!process.env.OPENAI_API_KEY) {
-    logger.warn(
-      'OPENAI_API_KEY environment variable is not set. Semantic search will use random embeddings.'
-    );
-  } else {
-    logger.info('OpenAI API key found, will use for generating embeddings');
-  }
-
-  // Initialize the embedding service
+  // Initialize the embedding service (using local Transformers.js)
   const embeddingService = EmbeddingServiceFactory.createFromEnvironment();
   logger.debug(`Embedding service model info: ${JSON.stringify(embeddingService.getModelInfo())}`);
 
-  // Configure rate limiting options - stricter limits to prevent OpenAI API abuse
+  // Configure rate limiting options
   const rateLimiterOptions = {
     tokensPerInterval: process.env.EMBEDDING_RATE_LIMIT_TOKENS
       ? parseInt(process.env.EMBEDDING_RATE_LIMIT_TOKENS, 10)
