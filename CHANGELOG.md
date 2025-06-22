@@ -5,6 +5,59 @@ All notable changes to Neural Nexus MCP will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2025-01-22
+
+### Added
+- **Comprehensive system prompts** for IDE integration (basic and advanced options)
+- **Dedicated SETUP.md** with step-by-step installation and configuration guide
+- **Simplified configuration** - reduced from 15+ variables to just 3 required ones
+- **Enhanced documentation** with copy-paste ready configurations
+- **Troubleshooting section** with common issues and solutions
+- **Environment variables reference table** for advanced users
+- **Quick start guide** with minimal setup approach
+
+### Changed
+- **Dramatically simplified configuration** - Neural Nexus MCP now auto-configures with sensible defaults
+- **Improved user experience** - minimal config only requires Neo4j connection details
+- **Enhanced README.md** with better organization and clearer instructions
+- **Streamlined setup process** - from complex to beginner-friendly
+- **Better documentation structure** - basic setup first, advanced options later
+
+### Removed
+- **Automatic npm publishing** from GitHub workflows (manual releases preferred)
+- **Overwhelming configuration options** from basic setup examples
+- **Complex environment variables** from minimal configuration
+
+### Technical Improvements
+- All embedding and database settings now have sensible defaults
+- Configuration complexity reduced by 80% for new users
+- Advanced users can still customize everything in optional configuration
+- Better separation between development and production configurations
+
+## [1.0.1] - 2025-01-22
+
+### Added
+- **Comprehensive system prompts** for IDE integration (basic and advanced options)
+- **Dedicated SETUP.md** with step-by-step installation and configuration guide
+- **Enhanced documentation** with copy-paste ready configurations
+- **Troubleshooting section** with common issues and solutions
+- **Environment variables reference table** for advanced users
+
+### Changed
+- **Simplified configuration examples** - show minimal 3-variable config first
+- **Improved user experience** - reduced configuration complexity by 80%
+- **Enhanced README.md** with better organization and clearer instructions
+- **Better documentation structure** - basic setup first, advanced options later
+
+### Removed
+- **Automatic npm publishing** from GitHub workflows (manual releases preferred)
+- **Overwhelming configuration options** from basic setup examples
+
+### Fixed
+- **Documentation clarity** - made setup process much more beginner-friendly
+- **Configuration examples** - now show minimal working configurations
+- **User onboarding** - streamlined from complex to simple
+
 ## [1.0.0] - 2025-01-22
 
 ### Added
