@@ -94,12 +94,18 @@ When asked about past conversations or user information, always check the Neural
 
 You should use semantic_search to find relevant information in your memory when answering questions.
 
+When a user says "new chat" or mentions continuing from before, use get_last_session to retrieve context from the previous session.
+
+When ending a chat or when the user says goodbye, use create_session_summary to save the session context for future continuity.
+
 Key capabilities:
 - Store entities (people, concepts, events) with observations
 - Create relations between entities with confidence and strength values
 - Search semantically using local embeddings (no external APIs)
 - Track temporal changes and version history
 - Maintain persistent memory across conversations
+- Create session summaries for seamless continuity between chats
+- Restore context from previous sessions automatically
 
 Always use the memory system to:
 1. Remember important user preferences and information
@@ -107,6 +113,8 @@ Always use the memory system to:
 3. Store insights and learnings from conversations
 4. Build knowledge graphs of related concepts
 5. Maintain context across multiple sessions
+6. Create session summaries when ending conversations
+7. Check for previous sessions when starting new chats
 ```
 
 ### 🔧 **Advanced System Prompt (For Power Users)**
@@ -570,6 +578,80 @@ Rich metadata support for both entities and relations with custom fields:
 - **Quality Indicators**: Track reliability, verification status, and data quality metrics
 - **Integration Metadata**: Store references to external systems and identifiers
 
+### Session Management
+
+Neural Nexus MCP provides built-in session management for seamless continuity between conversations:
+
+#### Creating Session Summaries
+
+When ending a conversation, use `create_session_summary` to capture the session context:
+
+```javascript
+// Example session summary
+{
+  "sessionOverview": "Implemented chat session management tools for Neural Nexus MCP",
+  "workCompleted": [
+    "Created create_session_summary tool handler",
+    "Created get_last_session tool handler", 
+    "Updated system prompts with session workflow"
+  ],
+  "keyDecisions": [
+    "Use MCP tools instead of rules for reliability",
+    "Store sessions as entities with type chat_session_summary"
+  ],
+  "entitiesWorked": [
+    "Session Management MCP Tools",
+    "Chat Session Management System"
+  ],
+  "nextSteps": [
+    "Test the session management in production",
+    "Add session analytics features"
+  ],
+  "openQuestions": [
+    "Should we add session expiration?"
+  ]
+}
+```
+
+#### Retrieving Previous Sessions
+
+When starting a new conversation, use `get_last_session` to restore context:
+
+```javascript
+// Returns formatted summary like:
+🔄 Continuing from previous session...
+
+📅 Last Session: Chat Session 2024-01-24 15:30:00
+🎯 Main Achievement: Implemented session management tools
+
+✅ Completed:
+- Created tool handlers
+- Updated documentation
+
+🔜 Next Steps:
+- Test in production
+- Add analytics
+
+❓ Open Questions:
+- Session expiration policy?
+```
+
+#### Benefits
+
+- **Zero Context Loss**: Never lose track of ongoing work
+- **Automatic Summaries**: Session details captured automatically
+- **Easy Resumption**: Pick up exactly where you left off
+- **Work Tracking**: Clear record of accomplishments and decisions
+- **Cross-Chat Continuity**: Maintain context across multiple sessions
+
+#### Best Practices
+
+1. **End Sessions Properly**: Always create a summary when finishing work
+2. **Track Entities**: Include all entities created or modified
+3. **Document Decisions**: Record key choices made during the session
+4. **Plan Next Steps**: Clear action items for the next session
+5. **Note Questions**: Capture unresolved issues for future discussion
+
 ## 🛠️ Development
 
 ### Local Development Setup
@@ -628,7 +710,7 @@ npm run test:integration
 
 ## 📚 API Reference
 
-Neural Nexus MCP provides 17+ tools accessible through the Model Context Protocol:
+Neural Nexus MCP provides 19+ tools accessible through the Model Context Protocol:
 
 ### Entity Management
 - `create_entities` - Create multiple entities with observations
@@ -656,6 +738,10 @@ Neural Nexus MCP provides 17+ tools accessible through the Model Context Protoco
 - `get_relation_history` - Relation version history
 - `get_graph_at_time` - Point-in-time graph state
 - `get_decayed_graph` - Graph with confidence decay applied
+
+### Session Management 
+- `create_session_summary` - Create comprehensive chat session summaries
+- `get_last_session` - Retrieve the most recent session for continuity
 
 ### Diagnostics
 - `debug_embedding_config` - Check embedding configuration

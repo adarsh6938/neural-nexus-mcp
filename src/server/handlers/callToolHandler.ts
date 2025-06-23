@@ -516,6 +516,12 @@ export async function handleCallToolRequest(
           };
         }
 
+      case 'create_session_summary':
+        return await toolHandlers.handleCreateSessionSummary(args, knowledgeGraphManager);
+
+      case 'get_last_session':
+        return await toolHandlers.handleGetLastSession(args, knowledgeGraphManager);
+
       default:
         throw new Error(`Unknown tool: ${name}`);
     }

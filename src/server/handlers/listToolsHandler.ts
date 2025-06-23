@@ -570,6 +570,72 @@ export const handleListToolsRequest = async () => {
           },
         },
       },
+      {
+        name: 'create_session_summary',
+        description: 'Create a comprehensive summary of the current chat session for seamless continuity',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            sessionOverview: {
+              type: 'string',
+              description: 'Brief one-line summary of the main achievement in this session',
+            },
+            workCompleted: {
+              type: 'array',
+              items: {
+                type: 'string',
+              },
+              description: 'List of specific tasks or changes made during the session',
+            },
+            keyDecisions: {
+              type: 'array',
+              items: {
+                type: 'string',
+              },
+              description: 'Important choices or configurations decided in the session',
+            },
+            entitiesWorked: {
+              type: 'array',
+              items: {
+                type: 'string',
+              },
+              description: 'Names of entities created or modified during the session',
+            },
+            nextSteps: {
+              type: 'array',
+              items: {
+                type: 'string',
+              },
+              description: 'What should be done in the next session',
+            },
+            openQuestions: {
+              type: 'array',
+              items: {
+                type: 'string',
+              },
+              description: 'Any unresolved issues or pending decisions',
+            },
+            continuesFrom: {
+              type: 'string',
+              description: 'Optional: Name of previous session this continues from',
+            },
+          },
+          required: ['sessionOverview'],
+        },
+      },
+      {
+        name: 'get_last_session',
+        description: 'Retrieve the most recent chat session summary for context restoration',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            random_string: {
+              type: 'string',
+              description: 'Dummy parameter for no-parameter tools',
+            },
+          },
+        },
+      },
     ],
   };
 };
