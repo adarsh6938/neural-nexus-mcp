@@ -1,6 +1,6 @@
 /**
  * Handles the get_last_session tool request
- * Retrieves the most recent chat session summary
+ * Retrieves the most recent chat session summary with enhanced v2 format support
  * @param args The arguments for the tool request
  * @param knowledgeGraphManager The KnowledgeGraphManager instance
  * @returns A response object with the result content
@@ -12,79 +12,237 @@ export async function handleGetLastSession(
   knowledgeGraphManager: any
 ): Promise<{ content: Array<{ type: string; text: string }> }> {
   try {
-    // Search for chat session summaries
-    const searchResults = await knowledgeGraphManager.search('chat_session_summary', {
-      entityTypes: ['chat_session_summary'],
-      limit: 10,
-    });
-
-    if (!searchResults || !searchResults.entities || searchResults.entities.length === 0) {
+    // Read the entire graph and filter for chat session summaries
+    const graphData = await knowledgeGraphManager.readGraph();
+    
+    if (!graphData || !graphData.entities) {
       return {
         content: [
           {
             type: 'text',
-            text: JSON.stringify(
-              {
-                found: false,
-                message: 'No previous chat sessions found.',
-              },
-              null,
-              2
-            ),
+            text: 'No previous session found.',
           },
         ],
       };
     }
 
-    // Sort by creation date to get the most recent
-    const sortedSessions = searchResults.entities.sort(
-      (a: { createdAt: number }, b: { createdAt: number }) => b.createdAt - a.createdAt
+    // Filter for chat_session_summary entities
+    const sessionEntities = graphData.entities.filter(
+      (entity: any) => entity.entityType === 'chat_session_summary'
     );
 
-    const lastSession = sortedSessions[0];
+    if (sessionEntities.length === 0) {
+      return {
+        content: [
+          {
+            type: 'text',
+            text: 'No previous session found.',
+          },
+        ],
+      };
+    }
 
-    // Parse the observations to extract structured data
-    const observations = lastSession.observations || [];
-    const overview = observations.find((obs: string) => obs.startsWith('SESSION_OVERVIEW:'))?.replace('SESSION_OVERVIEW: ', '') || '';
-    
-    // Extract sections
-    const sections: Record<string, string[]> = {
-      workCompleted: [],
-      keyDecisions: [],
-      entitiesWorked: [],
-      nextSteps: [],
-      openQuestions: [],
+    // Sort by creation time to get the most recent
+    const sortedSessions = sessionEntities.sort((a: any, b: any) => b.createdAt - a.createdAt);
+    const latestSession = sortedSessions[0];
+    const observations = latestSession.observations || [];
+
+    // Parse session data from observations
+    const sessionData = {
+      overview: '',
+      coreMetadata: {
+        sessionId: '',
+        startTime: '',
+        endTime: '',
+        duration: '',
+        sessionType: '',
+        environment: '',
+      },
+      technicalContent: {
+        modifiedFiles: [] as string[],
+        commandsRun: [] as string[],
+        buildResults: [] as string[],
+        errorLogs: [] as string[],
+      },
+      knowledgeTracking: {
+        discussions: [] as string[],
+        problemsSolved: [] as string[],
+        solutionsImplemented: [] as string[],
+      },
+      decisionLog: [] as string[],
+      contextPreservation: {
+        branch: '',
+        gitStatus: [] as string[],
+        packageVersion: '',
+      },
+      relationshipTracking: {
+        previousSession: '',
+        entitiesModified: [] as string[],
+        toolsUsed: [] as string[],
+      },
+      progressTracking: {
+        completed: [] as string[],
+        nextActions: [] as string[],
+      },
+      qualityMetrics: {
+        codeReview: [] as string[],
+        testCoverage: [] as string[],
+      },
+      learningAndDocs: {
+        newConcepts: [] as string[],
+        docsUpdates: [] as string[],
+      },
+      futurePlanning: {
+        nextSteps: [] as string[],
+        openQuestions: [] as string[],
+        improvements: [] as string[],
+      },
     };
 
+    // Parse observations into structured data
     let currentSection = '';
+    let currentSubsection = '';
+
     for (const obs of observations) {
-      if (obs === 'WORK_COMPLETED:') currentSection = 'workCompleted';
-      else if (obs === 'KEY_DECISIONS:') currentSection = 'keyDecisions';
-      else if (obs === 'ENTITIES_WORKED:') currentSection = 'entitiesWorked';
-      else if (obs === 'NEXT_STEPS:') currentSection = 'nextSteps';
-      else if (obs === 'OPEN_QUESTIONS:') currentSection = 'openQuestions';
-      else if (obs.startsWith('- ') && currentSection) {
-        sections[currentSection].push(obs.substring(2));
+      // Handle overview
+      if (obs.startsWith('SESSION_OVERVIEW: ')) {
+        sessionData.overview = obs.replace('SESSION_OVERVIEW: ', '').trim();
+        continue;
+      }
+
+      // Handle section headers
+      if (obs === '1. CORE METADATA:') {
+        currentSection = 'coreMetadata';
+        continue;
+      } else if (obs === '2. TECHNICAL CONTENT:') {
+        currentSection = 'technicalContent';
+        continue;
+      } else if (obs === '3. KNOWLEDGE TRACKING:') {
+        currentSection = 'knowledgeTracking';
+        continue;
+      } else if (obs === '4. DECISION LOG:') {
+        currentSection = 'decisionLog';
+        continue;
+      } else if (obs === '5. CONTEXT PRESERVATION:') {
+        currentSection = 'contextPreservation';
+        continue;
+      } else if (obs === '6. RELATIONSHIP TRACKING:') {
+        currentSection = 'relationshipTracking';
+        continue;
+      } else if (obs === '7. PROGRESS TRACKING:') {
+        currentSection = 'progressTracking';
+        continue;
+      } else if (obs === '8. QUALITY METRICS:') {
+        currentSection = 'qualityMetrics';
+        continue;
+      } else if (obs === '9. LEARNING & DOCUMENTATION:') {
+        currentSection = 'learningAndDocs';
+        continue;
+      } else if (obs === '10. FUTURE PLANNING:') {
+        currentSection = 'futurePlanning';
+        continue;
+      }
+
+      // Handle subsection headers
+      if (obs.startsWith('- ') && obs.endsWith(':')) {
+        const subsectionName = obs.replace(/^-\s+/, '').replace(/:$/, '').trim();
+        if (currentSection === 'coreMetadata') {
+          // Don't change subsection for metadata, handle directly
+        } else if (currentSection === 'progressTracking') {
+          if (subsectionName === 'Completed') {
+            currentSubsection = 'completed';
+          } else if (subsectionName === 'Next Actions') {
+            currentSubsection = 'nextActions';
+          }
+        } else if (currentSection === 'futurePlanning') {
+          if (subsectionName === 'Open Questions') {
+            currentSubsection = 'openQuestions';
+          } else if (subsectionName === 'Immediate Next Steps') {
+            currentSubsection = 'nextSteps';
+          }
+        } else if (currentSection === 'relationshipTracking') {
+          if (subsectionName === 'Entities Modified') {
+            currentSubsection = 'entitiesModified';
+          } else if (subsectionName === 'Tools Used') {
+            currentSubsection = 'toolsUsed';
+          }
+        }
+        continue;
+      }
+
+      // Handle content lines
+      if (obs.startsWith('  * ')) {
+        const content = obs.replace(/^  \* /, '').trim();
+
+        if (!content) continue;
+
+        switch (currentSection) {
+          case 'coreMetadata':
+            // Handle metadata items directly without subsections
+            break;
+
+          case 'decisionLog':
+            sessionData.decisionLog.push(content);
+            break;
+
+          case 'relationshipTracking':
+            if (currentSubsection === 'entitiesModified') {
+              sessionData.relationshipTracking.entitiesModified.push(content);
+            } else if (currentSubsection === 'toolsUsed') {
+              sessionData.relationshipTracking.toolsUsed.push(content);
+            }
+            break;
+
+          case 'progressTracking':
+            if (currentSubsection === 'completed') {
+              sessionData.progressTracking.completed.push(content);
+            } else if (currentSubsection === 'nextActions') {
+              sessionData.progressTracking.nextActions.push(content);
+            }
+            break;
+
+          case 'futurePlanning':
+            if (currentSubsection === 'openQuestions') {
+              sessionData.futurePlanning.openQuestions.push(content);
+            } else if (currentSubsection === 'nextSteps') {
+              sessionData.futurePlanning.nextSteps.push(content);
+            }
+            break;
+        }
+      }
+
+      // Handle direct decision log items (without bullet points)
+      if (currentSection === 'decisionLog' && obs.startsWith('- ') && !obs.endsWith(':')) {
+        const content = obs.replace(/^-\s+/, '').trim();
+        if (content) {
+          sessionData.decisionLog.push(content);
+        }
       }
     }
 
-    // Format the response
-    const formattedSummary = `🔄 Continuing from previous session...
-
-📅 Last Session: ${lastSession.name}
-🎯 Main Achievement: ${overview}
-
-✅ Completed:
-${sections.workCompleted.map((item: string) => `- ${item}`).join('\n')}
-
-📝 Key Decisions:
-${sections.keyDecisions.map((item: string) => `- ${item}`).join('\n')}
-
-🔜 Next Steps:
-${sections.nextSteps.map((item: string) => `- ${item}`).join('\n')}
-
-❓ Open Questions:
-${sections.openQuestions.map((item: string) => `- ${item}`).join('\n')}`;
+    // Format a friendly summary
+    const formattedSummary = [
+      '🔄 Continuing from previous session...\n',
+      `📅 Last Session: ${latestSession.name}`,
+      `🎯 Main Achievement: ${sessionData.overview}\n`,
+      '🔍 Session Details:\n',
+      sessionData.coreMetadata.environment
+        ? `🖥️ Environment: ${sessionData.coreMetadata.environment}\n`
+        : '',
+      '\n💻 Technical Changes:',
+      ...sessionData.technicalContent.modifiedFiles.map((f) => `- ${f}`),
+      ...sessionData.technicalContent.commandsRun.map((c) => `$ ${c}`),
+      '\n\n📝 Knowledge & Decisions:',
+      ...sessionData.decisionLog.map((d) => `- ${d}`),
+      '\n\n📊 Progress:',
+      ...sessionData.progressTracking.completed.map((p) => `✓ ${p}`),
+      '\n\n🔜 Next Steps:',
+      ...sessionData.progressTracking.nextActions.map((n) => `→ ${n}`),
+      '\n\n❓ Open Questions:',
+      ...sessionData.futurePlanning.openQuestions.map((q) => `? ${q}`),
+    ]
+      .filter(Boolean)
+      .join('\n');
 
     return {
       content: [
@@ -93,17 +251,11 @@ ${sections.openQuestions.map((item: string) => `- ${item}`).join('\n')}`;
           text: JSON.stringify(
             {
               found: true,
-              sessionName: lastSession.name,
-              sessionDate: new Date(lastSession.createdAt).toISOString(),
-              summary: {
-                overview,
-                workCompleted: sections.workCompleted,
-                keyDecisions: sections.keyDecisions,
-                entitiesWorked: sections.entitiesWorked,
-                nextSteps: sections.nextSteps,
-                openQuestions: sections.openQuestions,
-              },
+              sessionName: latestSession.name,
+              sessionDate: latestSession.createdAt,
+              summary: sessionData,
               formattedSummary,
+              format: 'v2',
               message: 'Would you like to continue from where we left off?',
             },
             null,
