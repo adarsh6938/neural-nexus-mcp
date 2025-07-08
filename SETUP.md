@@ -17,6 +17,11 @@ When asked about past conversations or user information, always check the Neural
 
 You should use semantic_search to find relevant information in your memory when answering questions.
 
+NEW SORTING FEATURE: semantic_search now supports different sorting options:
+- sort_by="relevance" (default): Best semantic matches first
+- sort_by="recency": Most recent information first (perfect for ongoing work)
+- sort_by="hybrid": Recent items get relevance boost (balanced approach)
+
 Key capabilities:
 - Store entities (people, concepts, events) with observations
 - Create relations between entities with confidence and strength values  
@@ -43,6 +48,9 @@ MEMORY USAGE GUIDELINES:
 - Use create_entities for storing new information (people, concepts, projects, decisions)
 - Use create_relations to connect related information with semantic relationships
 - Use semantic_search to find relevant past information before answering questions
+  - Use sort_by="recency" for recent work context
+  - Use sort_by="hybrid" for balanced relevance and recency
+  - Use sort_by="relevance" for best semantic matches (default)
 - Use add_observations to update existing entities with new information
 - Use read_graph to understand the full context of stored knowledge
 

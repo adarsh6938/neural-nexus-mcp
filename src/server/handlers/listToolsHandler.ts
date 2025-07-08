@@ -445,6 +445,11 @@ export const handleListToolsRequest = async () => {
               type: 'number',
               description: 'Weight of semantic results in hybrid search from 0.0 to 1.0 (default: 0.6)',
             },
+            sort_by: {
+              type: 'string',
+              enum: ['relevance', 'recency', 'hybrid'],
+              description: 'Sort results by relevance (default), recency (newest first), or hybrid (time-weighted relevance)',
+            },
           },
           required: ['query'],
         },

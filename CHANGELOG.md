@@ -5,6 +5,29 @@ All notable changes to Neural Nexus MCP will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] - 2025-01-08
+
+### Added
+- **Semantic search sorting options** - New `sort_by` parameter for `semantic_search` tool
+  - `sort_by="relevance"` (default): Best semantic matches first
+  - `sort_by="recency"`: Most recent information first (perfect for ongoing work)
+  - `sort_by="hybrid"`: Recent items get relevance boost (balanced approach)
+- **Time-weighted hybrid sorting** - Recent items get boosted relevance scores
+- **Enhanced documentation** with usage examples for new sorting feature
+- **Improved workflow for ongoing chats** - Use recency sorting for recent context
+
+### Changed
+- **Semantic search now supports flexible sorting** - Choose between relevance, recency, or hybrid
+- **Updated system prompts** to include new sorting options
+- **Enhanced API documentation** with sorting examples
+- **Improved SETUP.md** with new sorting feature details
+
+### Technical Improvements
+- Added `calculateTimeWeight()` method for hybrid sorting
+- Modified `semanticSearch()` method to support different sorting algorithms
+- Updated tool schema to include `sort_by` parameter with enum validation
+- Enhanced call handler to pass sorting parameters correctly
+
 ## [1.1.0] - 2025-01-22
 
 ### Added

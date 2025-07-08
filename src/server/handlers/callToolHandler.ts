@@ -368,6 +368,7 @@ export async function handleCallToolRequest(
             entityTypes: args.entity_types || [],
             hybridSearch: args.hybrid_search !== undefined ? args.hybrid_search : true,
             semanticWeight: args.semantic_weight || 0.6,
+            sortBy: args.sort_by || 'relevance',
             semanticSearch: true,
           };
 

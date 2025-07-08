@@ -911,6 +911,7 @@ export class KnowledgeGraphManager {
       entityTypes?: string[];
       facets?: string[];
       offset?: number;
+      sortBy?: 'relevance' | 'recency' | 'hybrid';
     } = {}
   ): Promise<KnowledgeGraph> {
     // If hybridSearch is true, always set semanticSearch to true as well
@@ -957,6 +958,7 @@ export class KnowledgeGraphManager {
             entityTypes: options.entityTypes || [],
             facets: options.facets || [],
             offset: options.offset || 0,
+            sortBy: options.sortBy || 'relevance',
           });
 
           return results;
@@ -979,6 +981,29 @@ export class KnowledgeGraphManager {
   }
 
   /**
+   * Calculate a time weight for hybrid sorting (recent items get higher weight)
+   *
+   * @param timestamp The timestamp to calculate weight for
+   * @returns A weight multiplier between 0.5 and 1.5
+   */
+  private calculateTimeWeight(timestamp: number): number {
+    const now = Date.now();
+    const ageInDays = (now - timestamp) / (1000 * 60 * 60 * 24);
+    
+    // Recent items (< 1 day) get 1.5x boost
+    if (ageInDays < 1) return 1.5;
+    
+    // This week (< 7 days) gets 1.2x boost
+    if (ageInDays < 7) return 1.2;
+    
+    // This month (< 30 days) gets normal weight
+    if (ageInDays < 30) return 1.0;
+    
+    // Older items get reduced weight
+    return Math.max(0.5, 1.0 - (ageInDays - 30) / 365);
+  }
+
+  /**
    * Perform semantic search on the knowledge graph
    *
    * @param query The search query string
@@ -994,6 +1019,7 @@ export class KnowledgeGraphManager {
       entityTypes?: string[];
       facets?: string[];
       offset?: number;
+      sortBy?: 'relevance' | 'recency' | 'hybrid';
     } = {}
   ): Promise<KnowledgeGraph> {
     // Find similar entities using vector similarity
@@ -1019,11 +1045,36 @@ export class KnowledgeGraphManager {
       };
     });
 
-    // Sort by score descending
+    // Sort based on the specified sort option
+    const sortBy = options.sortBy || 'relevance';
+    
     scoredEntities.sort((a, b) => {
       const scoreA = 'score' in a ? (a as Entity & { score: number }).score : 0;
       const scoreB = 'score' in b ? (b as Entity & { score: number }).score : 0;
-      return scoreB - scoreA;
+      
+      switch (sortBy) {
+        case 'recency':
+          // Sort by most recent first (highest timestamp)
+          // Cast to any to access temporal properties that may exist at runtime
+          const timeA = (a as any).updatedAt || (a as any).createdAt || 0;
+          const timeB = (b as any).updatedAt || (b as any).createdAt || 0;
+          return timeB - timeA;
+          
+        case 'hybrid':
+          // Time-weighted relevance: boost recent items
+          const entityTimeA = (a as any).updatedAt || (a as any).createdAt || 0;
+          const entityTimeB = (b as any).updatedAt || (b as any).createdAt || 0;
+          const timeWeightA = this.calculateTimeWeight(entityTimeA);
+          const timeWeightB = this.calculateTimeWeight(entityTimeB);
+          const hybridScoreA = scoreA * timeWeightA;
+          const hybridScoreB = scoreB * timeWeightB;
+          return hybridScoreB - hybridScoreA;
+          
+        case 'relevance':
+        default:
+          // Sort by relevance score descending (original behavior)
+          return scoreB - scoreA;
+      }
     });
 
     return {

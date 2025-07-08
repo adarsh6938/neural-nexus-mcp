@@ -26,6 +26,10 @@ Neural Nexus MCP is a sophisticated knowledge graph memory system designed for L
 ### **Semantic Understanding**
 - **Local Vector Embeddings**: Uses Transformers.js (Xenova/all-MiniLM-L6-v2) for completely local, privacy-focused embeddings
 - **Semantic Search**: Find information by meaning, not just keywords
+- **Smart Sorting**: Choose between relevance, recency, or hybrid time-weighted sorting
+  - `relevance`: Best semantic matches first (default)
+  - `recency`: Most recent information first (perfect for ongoing work)
+  - `hybrid`: Recent items get relevance boost (balanced approach)
 - **Hybrid Search**: Combines semantic and keyword search for optimal results
 - **Cross-Modal Retrieval**: Query with text to find semantically related concepts
 - **No External API Dependencies**: All embedding generation happens locally
@@ -95,8 +99,8 @@ To get the most out of Neural Nexus MCP, add these system prompts to your IDE co
 ```
 You have access to the Neural Nexus MCP knowledge graph memory system. Follow this workflow for EVERY chat:
 
-1. START: Search memory for context (use semantic_search, search_nodes, open_nodes)
-2. CHECK SESSION: If user mentions "new chat" or continuing, use get_last_session tool
+1. CHECK SESSION: If user mentions "new chat" or continuing, use get_last_session tool
+2. SEARCH CONTEXT: Only use semantic_search, search_nodes, open_nodes when user explicitly requests context or when specific information needs to be found
 3. VERIFY: Check user history and preferences (get_entity_history, get_relation_history)
 4. TRACK: During chat, note new information, decisions, and changes
 5. UPDATE: Before ending, create/update entities for new information
@@ -109,7 +113,7 @@ You have access to the Neural Nexus MCP knowledge graph memory system. Follow th
 12. REMEMBER: Never end chat without updating memory - persistence is critical!
 
 TOOL GUIDE:
-- semantic_search: Find conceptually related info (params: query, min_similarity 0.6-1.0)
+- semantic_search: Find conceptually related info (params: query, min_similarity 0.6-1.0, sort_by 'recency' for recent context)
 - search_nodes: Find exact entity names
 - open_nodes: Get full details of specific entities
 - read_graph: View entire memory graph
@@ -677,6 +681,53 @@ npm run test:watch
 npm run test:integration
 ```
 
+## 🎯 Usage Examples
+
+### Semantic Search with Sorting
+
+```javascript
+// Get most relevant results (default behavior)
+semantic_search({
+  query: "project documentation",
+  limit: 10,
+  sort_by: "relevance"
+})
+
+// Get most recent information first (perfect for ongoing work)
+semantic_search({
+  query: "recent changes",
+  limit: 5,
+  sort_by: "recency"
+})
+
+// Balance relevance and recency (recent items get boosted)
+semantic_search({
+  query: "important decisions",
+  limit: 8,
+  sort_by: "hybrid"
+})
+```
+
+### Session Continuity Workflow
+
+```javascript
+// Starting a new chat - check for previous session
+get_last_session()
+
+// During chat - search for relevant context
+semantic_search({
+  query: "user preferences",
+  sort_by: "hybrid"  // Recent preferences matter more
+})
+
+// Ending chat - create comprehensive summary
+create_session_summary({
+  sessionOverview: "Implemented new search sorting feature",
+  workCompleted: ["Added sort_by parameter", "Updated documentation"],
+  nextSteps: ["Test in production", "Gather user feedback"]
+})
+```
+
 ## 📚 API Reference
 
 Neural Nexus MCP provides 19+ tools accessible through the Model Context Protocol:
@@ -699,7 +750,11 @@ Neural Nexus MCP provides 19+ tools accessible through the Model Context Protoco
 - `open_nodes` - Retrieve specific entities by name
 
 ### Semantic Search
-- `semantic_search` - Vector-based semantic search
+- `semantic_search` - Vector-based semantic search with sorting options
+  - `sort_by`: Sort results by `'relevance'` (default), `'recency'`, or `'hybrid'`
+  - `'relevance'`: Sort by semantic similarity score (best matches first)
+  - `'recency'`: Sort by timestamp (most recent first)
+  - `'hybrid'`: Time-weighted relevance (recent items get relevance boost)
 - `get_entity_embedding` - Get entity vector embeddings
 
 ### Temporal Features
