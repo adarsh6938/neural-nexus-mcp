@@ -1,6 +1,6 @@
 {
   "name": "@adarsh6938/neural-nexus-mcp",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Neural Nexus MCP: Knowledge graph memory system for LLMs",
   "license": "MIT",
   "author": "Adarsh Ramachandra",
